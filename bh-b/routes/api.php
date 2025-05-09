@@ -48,6 +48,7 @@ Route::middleware(['auth:sanctum', 'is_admin'])->prefix('admin')->group(function
     Route::delete('/services/{service}', [ServiceAdminController::class, 'destroy']);
 
     // Портфолио — загрузка, редактирование, удаление
+    Route::get('/portfolio', [PortfolioAdminController::class, 'index']);
     Route::post('/portfolio', [PortfolioAdminController::class, 'store']);
     Route::put('/portfolio/{portfolio}', [PortfolioAdminController::class, 'update']);
     Route::delete('/portfolio/{portfolio}', [PortfolioAdminController::class, 'destroy']);
