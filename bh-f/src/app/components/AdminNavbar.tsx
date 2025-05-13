@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -33,7 +31,7 @@ const AdminNavbar = () => {
       console.error('Ошибка при выходе:', error);
     } finally {
       localStorage.removeItem('token');
-      router.push('/login');
+      router.push('/admin');
     }
   };
 

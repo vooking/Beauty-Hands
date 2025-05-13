@@ -1,6 +1,4 @@
-'use client';
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import Image from 'next/image';
 import styles from '@/app/page.module.css';
 
@@ -26,6 +24,38 @@ type PortfolioImage = {
   title?: string;
   category: Category;
 };
+
+const CategoryButton = memo(({ 
+  cat, 
+  activeCategory, 
+  onClick 
+}: { 
+  cat: string; 
+  activeCategory: string; 
+  onClick: (cat: string) => void; 
+}) => (
+  <button
+    onClick={() => onClick(cat)}
+    className={`text-sm pb-1 px-3 relative transition-all ${
+      activeCategory === cat
+        ? 'text-[#FFC5B8] font-medium after:content-[""] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#FFC5B8]'
+        : 'text-gray-700 hover:text-[#FFC5B8] hover:after:content-[""] hover:after:absolute hover:after:left-0 hover:after:bottom-0 hover:after:h-[2px] hover:after:w-full hover:bg-[#FFC5B8]'
+    }`}
+  >
+    {cat}
+  </button>
+));
+
+const PortfolioImageItem = memo(({ image }: { image: PortfolioImage }) => (
+  <div className="relative aspect-square rounded overflow-hidden">
+    <Image
+      src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${image.image_url}`}
+      alt={image.title || `portfolio ${image.id}`}
+      fill
+      className="object-cover"
+    />
+  </div>
+));
 
 export default function PortfolioGallery() {
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
@@ -57,7 +87,7 @@ export default function PortfolioGallery() {
     fetchImages();
   }, [activeCategory]);
 
-  return (
+return (
     <section className="max-w-5xl mx-auto px-4 text-center text-[#4b4845]">
       <h2 className={`text-3xl md:text-4xl font-semibold mb-8 ${styles.titleMain}`}>
         Портфолио работ
@@ -65,17 +95,12 @@ export default function PortfolioGallery() {
 
       <div className="flex flex-wrap gap-3 justify-center mb-6">
         {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`text-sm pb-1 px-3 relative transition-all ${
-              activeCategory === cat
-                ? 'text-[#FFC5B8] font-medium after:content-[""] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#FFC5B8]'
-                : 'text-gray-700 hover:text-[#FFC5B8] hover:after:content-[""] hover:after:absolute hover:after:left-0 hover:after:bottom-0 hover:after:h-[2px] hover:after:w-full hover:bg-[#FFC5B8]'
-            }`}
-          >
-            {cat}
-          </button>
+          <CategoryButton 
+            key={cat} 
+            cat={cat} 
+            activeCategory={activeCategory} 
+            onClick={setActiveCategory} 
+          />
         ))}
       </div>
 
@@ -83,18 +108,7 @@ export default function PortfolioGallery() {
         {loading ? (
           <p className="col-span-full text-gray-400">Загрузка...</p>
         ) : images.length > 0 ? (
-          images.map((image) => (
-            <div key={image.id} className="relative aspect-square rounded overflow-hidden">
-              <Image
-                                src={
-                    `${process.env.NEXT_PUBLIC_STORAGE_URL}/${image.image_url}`
-                }
-                alt={image.title || `portfolio ${image.id}`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          ))
+          images.map((image) => <PortfolioImageItem key={image.id} image={image} />)
         ) : (
           <p className="col-span-full text-gray-400">Фотографий пока нет</p>
         )}

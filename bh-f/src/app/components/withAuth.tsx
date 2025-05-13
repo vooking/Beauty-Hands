@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ComponentType } from 'react';
@@ -13,7 +11,7 @@ export default function withAuth<P extends JSX.IntrinsicAttributes>(WrappedCompo
         useEffect(() => {
             const token = localStorage.getItem('token');
             if (!token) {
-                router.push('/login');
+                router.push('/admin');
             } else {
                 setAuthenticated(true);
             }
