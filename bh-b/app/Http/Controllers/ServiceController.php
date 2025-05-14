@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Service;
 
-use Illuminate\Http\Request;
+use App\Models\Service;
+use App\Models\Category;
 
 class ServiceController extends Controller
 {
     public function index()
     {
-        return response()->json(Service::all());
+        return response()->json(Service::with('category')->get());
     }
 }

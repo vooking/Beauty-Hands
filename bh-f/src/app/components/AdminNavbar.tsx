@@ -8,6 +8,7 @@ const navItems = [
   { href: '/admin/feedback', label: 'Обратная связь' },
   { href: '/admin/services', label: 'Услуги' },
   { href: '/admin/portfolio', label: 'Портфолио' },
+  { href: '/admin/categories', label: 'Добавление новых категорий' },
 ];
 
 const AdminNavbar = () => {

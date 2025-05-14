@@ -2,27 +2,15 @@ import { useEffect, useState, memo } from 'react';
 import Image from 'next/image';
 import styles from '@/app/page.module.css';
 
-const categories = [
-  'Наращивание ногтей',
-  'Маникюр',
-  'Педикюр',
-  'Брови и ресницы',
-  'Лицо',
-  'Массаж',
-  'Препаратный педикюр KART',
-  'Комплексы',
-  'Пирсинг',
-  'Депиляция',
-] as const;
-
-type Category = (typeof categories)[number];
-
 type PortfolioImage = {
   id: number;
   image_url: string;
-  url: string; // Готовый абсолютный URL
   title?: string;
-  category: Category;
+  category_id: {
+    id: number;
+    name: string;
+    slug: string;
+  };
 };
 
 const CategoryButton = memo(({ 
@@ -30,19 +18,19 @@ const CategoryButton = memo(({
   activeCategory, 
   onClick 
 }: { 
-  cat: string; 
+  cat: { id: number; name: string; slug: string }; 
   activeCategory: string; 
-  onClick: (cat: string) => void; 
+  onClick: (slug: string) => void; 
 }) => (
   <button
-    onClick={() => onClick(cat)}
+    onClick={() => onClick(cat.slug)}
     className={`text-sm pb-1 px-3 relative transition-all ${
-      activeCategory === cat
-        ? 'text-[#FFC5B8] font-medium after:content-[""] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#FFC5B8]'
-        : 'text-gray-700 hover:text-[#FFC5B8] hover:after:content-[""] hover:after:absolute hover:after:left-0 hover:after:bottom-0 hover:after:h-[2px] hover:after:w-full hover:bg-[#FFC5B8]'
-    }`}
+      activeCategory === cat.slug
+                  ? "text-[#FFC5B8] font-medium after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#FFC5B8]"
+                  : "text-gray-700 hover:text-[#FFC5B8] hover:after:content-[''] hover:after:absolute hover:after:left-0 hover:after:bottom-0 hover:after:h-[2px] hover:after:w-full hover:after:bg-[#FFC5B8]"
+              }`}
   >
-    {cat}
+    {cat.name}
   </button>
 ));
 
@@ -53,21 +41,41 @@ const PortfolioImageItem = memo(({ image }: { image: PortfolioImage }) => (
       alt={image.title || `portfolio ${image.id}`}
       fill
       className="object-cover"
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
     />
   </div>
 ));
 
 export default function PortfolioGallery() {
-  const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
+  const [activeCategory, setActiveCategory] = useState<string>('');
   const [images, setImages] = useState<PortfolioImage[]>([]);
+  const [categories, setCategories] = useState<{id: number; name: string; slug: string}[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories?type=portfolio`);
+        const data = await res.json();
+        setCategories(data);
+        if (data.length > 0) {
+          setActiveCategory(data[0].slug);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
     const fetchImages = async () => {
+      if (!activeCategory) return;
+      
       setLoading(true);
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/portfolio?category=${encodeURIComponent(activeCategory)}`
+          `${process.env.NEXT_PUBLIC_API_URL}/portfolio?category_id=${activeCategory}`
         );
 
         if (!response.ok) {
@@ -78,7 +86,7 @@ export default function PortfolioGallery() {
         setImages(data);
       } catch (error) {
         console.error('Ошибка загрузки портфолио:', error);
-        setImages([]); // сброс, если ошибка
+        setImages([]);
       } finally {
         setLoading(false);
       }
@@ -87,7 +95,7 @@ export default function PortfolioGallery() {
     fetchImages();
   }, [activeCategory]);
 
-return (
+  return (
     <section className="max-w-5xl mx-auto px-4 text-center text-[#4b4845]">
       <h2 className={`text-3xl md:text-4xl font-semibold mb-8 ${styles.titleMain}`}>
         Портфолио работ
@@ -96,7 +104,7 @@ return (
       <div className="flex flex-wrap gap-3 justify-center mb-6">
         {categories.map((cat) => (
           <CategoryButton 
-            key={cat} 
+            key={cat.id} 
             cat={cat} 
             activeCategory={activeCategory} 
             onClick={setActiveCategory} 

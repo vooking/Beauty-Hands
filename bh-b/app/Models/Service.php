@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Service extends Model
 {
     protected $fillable = [
-        'category',
+        'category_id',
         'name',
         'prices',
     ];
@@ -15,4 +15,9 @@ class Service extends Model
     protected $casts = [
         'prices' => 'array',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

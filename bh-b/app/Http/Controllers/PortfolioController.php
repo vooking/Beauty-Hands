@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Portfolio;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -10,10 +11,12 @@ class PortfolioController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Portfolio::query();
+        $query = Portfolio::with('category');
 
         if ($request->has('category')) {
-            $query->where('category', $request->category);
+            $query->whereHas('category', function($q) use ($request) {
+                $q->where('slug', $request->category);
+            });
         }
 
         $portfolios = $query->orderByDesc('created_at')->get();

@@ -4,26 +4,14 @@ import { useEffect, useState } from 'react';
 import AdminNavbar from '@/app/components/AdminNavbar';
 import withAuth from '@/app/components/withAuth';
 
-const categories = [
-    "Наращивание ногтей",
-    "Маникюр",
-    "Педикюр",
-    "Брови и ресницы",
-    "Лицо",
-    "Массаж",
-    "Препаратный педикюр KART",
-    "Комплексы",
-    "Пирсинг",
-    "Депиляция",
-];
-
-const Services = () => {
+const ServicesAdmin = () => {
     const [services, setServices] = useState<any[]>([]);
+    const [categories, setCategories] = useState<any[]>([]);
     const [filteredServices, setFilteredServices] = useState<any[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>('Все');
     const [form, setForm] = useState({
         id: null as number | null,
-        category: categories[0],
+        category_id: '',
         name: '',
         priceMaster: '',
         priceTopMaster: '',
@@ -31,28 +19,39 @@ const Services = () => {
     });
     const [isEditing, setIsEditing] = useState(false);
 
-    const fetchServices = () => {
+    useEffect(() => {
         const token = localStorage.getItem('token');
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-            .then(res => res.json())
-            .then(data => {
-                setServices(data);
-                setFilteredServices(data);
-            })
-            .catch(() => alert('Ошибка загрузки услуг'));
-    };
+        if (!token) return;
 
-    useEffect(() => { 
-        fetchServices(); 
+        const fetchData = async () => {
+            try {
+                // Загружаем категории
+                const categoriesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/categories?type=service`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const categoriesData = await categoriesRes.json();
+                setCategories(categoriesData);
+
+                // Загружаем услуги
+                const servicesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const servicesData = await servicesRes.json();
+                setServices(servicesData);
+                setFilteredServices(servicesData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
     }, []);
 
     useEffect(() => {
         if (selectedCategory === 'Все') {
             setFilteredServices(services);
         } else {
-            const filtered = services.filter(service => service.category === selectedCategory);
+            const filtered = services.filter(service => service.category_id === selectedCategory);
             setFilteredServices(filtered);
         }
     }, [selectedCategory, services]);
@@ -87,6 +86,8 @@ const Services = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
+        if (!token) return;
+
         try {
             const prices: any = { master: form.priceMaster };
             
@@ -100,21 +101,28 @@ const Services = () => {
             
             const method = isEditing ? 'PUT' : 'POST';
 
-            await fetch(url, {
+            const response = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    category: form.category,
+                    category_id: form.category_id,
                     name: form.name,
                     prices: JSON.stringify(prices)
                 })
             });
+
+            if (!response.ok) throw new Error('Ошибка сохранения');
+
+            const updatedServices = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const updatedData = await updatedServices.json();
             
+            setServices(updatedData);
             resetForm();
-            fetchServices();
         } catch (e) {
             alert(`Ошибка при ${isEditing ? 'редактировании' : 'добавлении'}`);
         }
@@ -125,7 +133,7 @@ const Services = () => {
         
         setForm({
             id: service.id,
-            category: service.category,
+            category_id: service.category_id,
             name: service.name,
             priceMaster: prices.master || '',
             priceTopMaster: prices.topMaster || '',
@@ -136,19 +144,24 @@ const Services = () => {
 
     const handleDelete = async (id: number) => {
         const token = localStorage.getItem('token');
-        if (confirm('Удалить услугу?')) {
+        if (!token || !confirm('Удалить услугу?')) return;
+
+        try {
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });
-            fetchServices();
+
+            setServices(services.filter(s => s.id !== id));
+        } catch (error) {
+            alert('Ошибка при удалении');
         }
     };
 
     const resetForm = () => {
         setForm({
             id: null,
-            category: categories[0],
+            category_id: categories.length > 0 ? categories[0].id : '',
             name: '',
             priceMaster: '',
             priceTopMaster: '',
@@ -168,13 +181,15 @@ const Services = () => {
                     <div>
                         <label className="block mb-1 font-medium">Категория</label>
                         <select 
-                            name="category" 
-                            value={form.category} 
+                            name="category_id" 
+                            value={form.category_id} 
                             onChange={handleChange} 
                             className="border p-2 w-full rounded"
+                            required
                         >
+                            <option value="" disabled>Выберите категорию</option>
                             {categories.map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
                         </select>
                     </div>
@@ -229,7 +244,7 @@ const Services = () => {
                     <div className="flex gap-2">
                         <button 
                             type="submit" 
-                            className="bg-black text-white px-4 py-2 rounded"
+                            className="bg-black text-white px-4 py-2 rounded hover:bg-gray-500"
                         >
                             {isEditing ? 'Сохранить' : 'Добавить'}
                         </button>
@@ -255,7 +270,7 @@ const Services = () => {
                     >
                         <option value="Все">Все категории</option>
                         {categories.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
                         ))}
                     </select>
                 </div>
@@ -273,27 +288,30 @@ const Services = () => {
                         </thead>
                         <tbody>
                             {filteredServices.length > 0 ? (
-                                filteredServices.map(service => (
-                                    <tr key={service.id} className="border-b">
-                                        <td className="py-2 px-4">{service.category}</td>
-                                        <td className="py-2 px-4">{service.name}</td>
-                                        <td className="py-2 px-4">{parsePrice(service.prices)}</td>
-                                        <td className="py-2 px-4 space-x-2">
-                                            <button
-                                                onClick={() => handleEdit(service)}
-                                                className="text-blue-600 hover:underline"
-                                            >
-                                                Редактировать
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(service.id)}
-                                                className="text-red-600 hover:underline"
-                                            >
-                                                Удалить
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
+                                filteredServices.map(service => {
+                                    const category = categories.find(c => c.id === service.category_id);
+                                    return (
+                                        <tr key={service.id} className="border-b">
+                                            <td className="py-2 px-4">{category?.name || 'Неизвестно'}</td>
+                                            <td className="py-2 px-4">{service.name}</td>
+                                            <td className="py-2 px-4">{parsePrice(service.prices)}</td>
+                                            <td className="py-2 px-4 space-x-2">
+                                                <button
+                                                    onClick={() => handleEdit(service)}
+                                                    className="text-blue-600 hover:underline"
+                                                >
+                                                    Редактировать
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(service.id)}
+                                                    className="text-red-600 hover:underline"
+                                                >
+                                                    Удалить
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
                                     <td colSpan={4} className="py-4 text-center text-gray-500">
@@ -309,4 +327,4 @@ const Services = () => {
     );
 };
 
-export default withAuth(Services);
+export default withAuth(ServicesAdmin);

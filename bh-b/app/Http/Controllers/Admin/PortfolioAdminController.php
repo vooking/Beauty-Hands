@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Portfolio;
+use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 
 class PortfolioAdminController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Portfolio::query();
+        $query = Portfolio::with('category');
 
         if ($request->has('category')) {
-            $query->where('category', $request->category);
+            $query->whereHas('category', function($q) use ($request) {
+                $q->where('id', $request->category);
+            });
         }
 
         $portfolios = $query->orderByDesc('created_at')->get();
@@ -27,13 +30,12 @@ class PortfolioAdminController extends Controller
         return response()->json($portfolios);
     }
 
-
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'image' => 'required|image|max:2048',
-            'category' => 'nullable|string|max:100',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $path = $request->file('image')->store('portfolio', 'public');
@@ -41,10 +43,10 @@ class PortfolioAdminController extends Controller
         $portfolio = Portfolio::create([
             'title' => $validated['title'] ?? null,
             'image_url' => $path,
-            'category' => $validated['category'] ?? null,
+            'category_id' => $validated['category_id'],
         ]);
 
-        return response()->json($portfolio, 201);
+        return response()->json($portfolio->load('category'), 201);
     }
 
     public function update(Request $request, Portfolio $portfolio)
@@ -52,7 +54,7 @@ class PortfolioAdminController extends Controller
         $validated = $request->validate([
             'title' => 'nullable|string|max:255',
             'image' => 'sometimes|image|max:2048',
-            'category' => 'nullable|string|max:100',
+            'category_id' => 'sometimes|exists:categories,id',
         ]);
 
         if ($request->hasFile('image')) {
@@ -64,10 +66,12 @@ class PortfolioAdminController extends Controller
         }
 
         $portfolio->title = $validated['title'] ?? $portfolio->title;
-        $portfolio->category = $validated['category'] ?? $portfolio->category;
+        if (isset($validated['category_id'])) {
+            $portfolio->category_id = $validated['category_id'];
+        }
         $portfolio->save();
 
-        return response()->json($portfolio);
+        return response()->json($portfolio->load('category'));
     }
 
     public function destroy(Portfolio $portfolio)

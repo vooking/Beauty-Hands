@@ -4,7 +4,10 @@ import styles from "@/app/page.module.css";
 
 type Service = {
   id: number;
-  category: string;
+  category: {
+    id: number;
+    name: string;
+  };
   name: string;
   prices: {
     master: string;
@@ -12,24 +15,26 @@ type Service = {
   };
 };
 
-const fixedCategories = [
-  "Наращивание ногтей",
-  "Маникюр",
-  "Педикюр",
-  "Брови и ресницы",
-  "Лицо",
-  "Массаж",
-  "Препаратный педикюр KART",
-  "Комплексы",
-  "Пирсинг",
-  "Депиляция",
-];
-
 export default function ServicesTable() {
   const [services, setServices] = useState<Service[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>(
-    fixedCategories[0]
-  );
+  const [categories, setCategories] = useState<{id: number; name: string}[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('');
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories?type=service`);
+        const data = await res.json();
+        setCategories(data);
+        if (data.length > 0) {
+          setActiveCategory(data[0].name);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -56,7 +61,6 @@ export default function ServicesTable() {
     if (typeof prices === "string") {
       try {
         const parsed = JSON.parse(prices);
-        // Если в данных осталась старая структура с default ценой
         if (parsed.default && !parsed.master) {
           return { master: parsed.default, topMaster: parsed.topMaster };
         }
@@ -70,33 +74,30 @@ export default function ServicesTable() {
   };
 
   const filteredServices = services.filter(
-    (s) => s.category === activeCategory
+    (s) => s.category.name === activeCategory
   );
   const hasTopMasterPrices = filteredServices.some((s) => s.prices.topMaster);
 
   return (
     <section className="max-w-5xl mx-auto px-4 text-center text-[#4b4845] overflow-x-hidden">
-      <h2
-        className={`text-2xl sm:text-3xl md:text-4xl font-semibold mb-6 md:mb-8 ${styles.titleMain}`}
-      >
+      <h2 className={`text-2xl sm:text-3xl md:text-4xl font-semibold mb-6 md:mb-8 ${styles.titleMain}`}>
         Наши услуги
       </h2>
 
-      {/* Категории */}
       <div className="flex flex-wrap gap-4 mb-4 justify-center">
-        {fixedCategories.map((cat) => (
+        {categories.map((cat) => (
           <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.name)}
             className={`shrink-0 relative text-sm transition-all duration-300 pb-1 px-2
               ${
-                activeCategory === cat
+                activeCategory === cat.name
                   ? "text-[#FFC5B8] font-medium after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#FFC5B8]"
                   : "text-gray-700 hover:text-[#FFC5B8] hover:after:content-[''] hover:after:absolute hover:after:left-0 hover:after:bottom-0 hover:after:h-[2px] hover:after:w-full hover:after:bg-[#FFC5B8]"
               }
             `}
           >
-            {cat}
+            {cat.name}
           </button>
         ))}
       </div>
