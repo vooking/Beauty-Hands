@@ -57,7 +57,6 @@ export default function Home() {
       {/* Цветная полоса */}
       <div className="w-full h-[40px] bg-[#fff3f1]"></div>
 
-
       {/* Секция О НАС */}
       {/* Десктопная версия */}
       <div className="relative w-full h-screen overflow-hidden hidden md:block">
@@ -282,9 +281,11 @@ export default function Home() {
             </p>
 
             {/* Фото под текстом */}
-            <img
+            <Image
               src="/kart-foot.svg"
-              alt="Педикюр KART"
+              alt="Пример педикюра с продукцией KART"
+              width={600}
+              height={400}
               className="rounded-lg shadow-md object-cover w-full"
             />
           </div>
@@ -292,9 +293,11 @@ export default function Home() {
           {/* Правая часть */}
           <div className="flex flex-col justify-start mt-27">
             {/* Фото продуктов */}
-            <img
+            <Image
               src="/kart-products.svg"
-              alt="Продукция KART"
+              alt="Продукция KART для педикюра"
+              width={600}
+              height={400}
               className="rounded-lg shadow-md object-cover w-full mb-6"
             />
 
@@ -342,8 +345,8 @@ export default function Home() {
       <BrandsCarousel />
 
       {/* Секция с сертификатами */}
-      <section className="bg-[#FBF7F6] ">
-      <GiftCertificates />
+      <section className="bg-[#FBF7F6]">
+        <GiftCertificates />
       </section>
 
       {/* Секция с портфолио */}

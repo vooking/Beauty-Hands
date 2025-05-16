@@ -6,11 +6,12 @@ type PortfolioImage = {
   id: number;
   image_url: string;
   title?: string;
-  category_id: {
+  category: { // было category_id
     id: number;
     name: string;
     slug: string;
   };
+  url: string; // добавляем, так как контроллер возвращает это поле
 };
 
 const CategoryButton = memo(({ 
@@ -75,7 +76,7 @@ export default function PortfolioGallery() {
       setLoading(true);
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/portfolio?category_id=${activeCategory}`
+          `${process.env.NEXT_PUBLIC_API_URL}/portfolio?category=${activeCategory}`
         );
 
         if (!response.ok) {

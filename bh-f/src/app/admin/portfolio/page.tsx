@@ -15,9 +15,12 @@ const PortfolioAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [filterCategory, setFilterCategory] = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    // Перенаправить на страницу входа или показать сообщение
+    return;
+  }
 
     const fetchData = async () => {
       try {
