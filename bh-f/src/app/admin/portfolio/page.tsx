@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AdminNavbar from "@/app/components/AdminNavbar";
 import withAuth from "@/app/components/withAuth";
+import PortfolioCard from "@/app/components/PortfolioCard";
 
 const PortfolioAdmin = () => {
   const [portfolio, setPortfolio] = useState<any[]>([]);
@@ -10,35 +11,37 @@ const PortfolioAdmin = () => {
   const [form, setForm] = useState({
     title: "",
     category_id: "",
-    image: null as File | null
+    image: null as File | null,
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const [filterCategory, setFilterCategory] = useState("");
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    // Перенаправить на страницу входа или показать сообщение
-    return;
-  }
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
     const fetchData = async () => {
       try {
-        // Загружаем категории
-        const categoriesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/categories`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const categoriesData = await categoriesRes.json();
-        setCategories(categoriesData);
+        const [categoriesRes, portfolioRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/categories`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/portfolio`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        // Загружаем портфолио
-        const portfolioRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/portfolio`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const portfolioData = await portfolioRes.json();
+        const [categoriesData, portfolioData] = await Promise.all([
+          categoriesRes.json(),
+          portfolioRes.json(),
+        ]);
+
+        setCategories(categoriesData);
         setPortfolio(portfolioData);
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Ошибка загрузки данных:", error);
       }
     };
 
@@ -60,16 +63,19 @@ useEffect(() => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/portfolio`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/portfolio`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        }
+      );
 
       if (!res.ok) throw new Error("Ошибка при добавлении");
 
       const newItem = await res.json();
-      setPortfolio([newItem, ...portfolio]);
+      setPortfolio((prev) => [newItem, ...prev]);
       setForm({ title: "", category_id: "", image: null });
     } catch (err: any) {
       alert(err.message || "Ошибка при добавлении изображения");
@@ -78,25 +84,29 @@ useEffect(() => {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Удалить этот элемент?") || !localStorage.getItem("token")) return;
+  const handleDelete = useCallback(async (id: number) => {
+    if (!confirm("Удалить этот элемент?") || !localStorage.getItem("token"))
+      return;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/portfolio/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/portfolio/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
 
       if (!res.ok) throw new Error("Ошибка при удалении");
 
-      setPortfolio(portfolio.filter(item => item.id !== id));
+      setPortfolio((prev) => prev.filter((item) => item.id !== id));
     } catch (err: any) {
       alert(err.message || "Ошибка при удалении");
     }
-  };
+  }, []);
 
   const filteredPortfolio = filterCategory
-    ? portfolio.filter(item => item.category_id === filterCategory)
+    ? portfolio.filter((item) => item.category_id === filterCategory)
     : portfolio;
 
   return (
@@ -110,17 +120,19 @@ useEffect(() => {
             type="text"
             placeholder="Название (необязательно)"
             value={form.title}
-            onChange={(e) => setForm({...form, title: e.target.value})}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="w-full border rounded p-2"
           />
 
           <select
             value={form.category_id}
-            onChange={(e) => setForm({...form, category_id: e.target.value})}
+            onChange={(e) => setForm({ ...form, category_id: e.target.value })}
             className="w-full border rounded p-2"
             required
           >
-            <option value="" disabled>Выберите категорию</option>
+            <option value="" disabled>
+              Выберите категорию
+            </option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
@@ -131,7 +143,9 @@ useEffect(() => {
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => setForm({...form, image: e.target.files?.[0] || null})}
+            onChange={(e) =>
+              setForm({ ...form, image: e.target.files?.[0] || null })
+            }
             className="w-full"
             required
           />
@@ -145,7 +159,6 @@ useEffect(() => {
           </button>
         </form>
 
-        {/* Фильтр по категории */}
         <div className="mb-6">
           <select
             value={filterCategory}
@@ -161,34 +174,27 @@ useEffect(() => {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filteredPortfolio.map((item) => {
-            const category = categories.find(c => c.id === item.category_id);
-            return (
-              <div key={item.id} className="border p-4 rounded-md relative">
-                <img
-                  src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${item.image_url}`}
-                  alt={item.title || "Изображение"}
-                  className="w-full h-48 object-cover rounded mb-2"
+        {loading ? (
+          <p className="text-gray-500">Загрузка...</p>
+        ) : filteredPortfolio.length === 0 ? (
+          <p className="text-gray-500">Изображений пока нет</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {filteredPortfolio.map((item) => {
+              const category = categories.find(
+                (c) => c.id === item.category_id
+              );
+              return (
+                <PortfolioCard
+                  key={item.id}
+                  item={item}
+                  category={category}
+                  onDelete={handleDelete}
                 />
-                <p className="text-sm mb-1">
-                  <strong>Категория:</strong> {category?.name || "Неизвестно"}
-                </p>
-                {item.title && (
-                  <p className="text-sm">
-                    <strong>Название:</strong> {item.title}
-                  </p>
-                )}
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="text-red-600 text-sm mt-2 hover:underline"
-                >
-                  Удалить
-                </button>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </main>
     </>
   );

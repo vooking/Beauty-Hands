@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import styles from "./page.module.css";
 import "@/app/globals.css";
 import BrandsCarousel from "./components/BrandsCarousel";
@@ -12,8 +13,59 @@ import YclientsButton from "./components/YclientsButton";
 import GiftCertificates from "./components/GiftCertificates";
 import AboutUs from "./components/mobile/AboutUs";
 import Kart from "./components/Kart";
+import ServiceCard from "./components/ServiceCard";
+import FeatureCard from "./components/FeatureCard";
+
+// Мемоизированные компоненты
+const MemoizedHeader = memo(Header);
+const MemoizedFooter = memo(Footer);
+const MemoizedYclientsButton = memo(YclientsButton);
+const MemoizedGiftCertificates = memo(GiftCertificates);
+const MemoizedAboutUs = memo(AboutUs);
+const MemoizedKart = memo(Kart);
+const MemoizedBrandsCarousel = memo(BrandsCarousel);
+const MemoizedPortfolioGallery = memo(PortfolioGallery);
 
 export default function Home() {
+  const services = [
+    { src: "/nail-service.svg", text: "Ногтевой сервис" },
+    { src: "/hair.svg", text: "Волосы" },
+    { src: "/brows.svg", text: "Брови и ресницы" },
+    { src: "/massage.svg", text: "Массаж" },
+    { src: "/face.svg", text: "Лицо" },
+    { src: "/piercing.svg", text: "Пирсинг" },
+    { src: "/kart-products.svg", text: "Препаратный педикюр KART" },
+    { src: "/complex.svg", text: "Комплексы" },
+    { src: "/depilation.svg", text: "Депиляция" },
+  ];
+
+  const features = [
+    {
+      src: "/sterility.svg",
+      title: "Стерильность и качество",
+      description:
+        "Мы строго соблюдаем все санитарные нормы и стандарты качества, чтобы вы могли быть уверены в безопасности и надежности наших услуг.",
+    },
+    {
+      src: "/parking.svg",
+      title: "Места для парковки",
+      description:
+        "Мы позаботились о том, чтобы рядом со студией были доступные парковочные места для вашего удобства.",
+    },
+    {
+      src: "/design.svg",
+      title: "Дизайн любой сложности",
+      description:
+        "Мы предоставляем 7-дневную гарантию на все покрытия. Если за это время возникнут дефекты, мы бесплатно их устраним.",
+    },
+    {
+      src: "/location.svg",
+      title: "Удобное местоположение студии",
+      description:
+        "Наша студия расположена в удобном месте, что позволяет легко и быстро добраться до нас.",
+    },
+  ];
+
   return (
     <>
       <section className="relative h-[100vh] w-full flex flex-col items-start justify-center px-6 sm:px-12 md:px-24 lg:px-32">
@@ -29,7 +81,7 @@ export default function Home() {
         </div>
 
         {/* Шапка */}
-        <Header isTransparent />
+        <MemoizedHeader isTransparent />
 
         {/* Контент */}
         <div className="max-w-xl text-black z-10 mt-[-100px] sm:mt-[-120px] md:mt-[-150px] animate-fadeIn">
@@ -41,7 +93,7 @@ export default function Home() {
           <p className="mt-[44px] mb-[32px] text-[14px]">
             Скидка 20% новым клиентам на любую услугу при записи онлайн
           </p>
-          <YclientsButton />
+          <MemoizedYclientsButton />
           <a
             href="https://w298112.yclients.com/"
             target="_blank"
@@ -110,7 +162,7 @@ export default function Home() {
       </div>
 
       {/* Мобильная версия */}
-      <AboutUs />
+      <MemoizedAboutUs />
 
       <div className="w-full h-[100px] bg-[#fbf7f6]"></div>
 
@@ -128,72 +180,9 @@ export default function Home() {
 
         {/* Карточки */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-4 text-center">
-          {/* Карточка 1 */}
-          <div className="p-6 rounded-2xl border border-[#f3f3f3] shadow-sm hover:shadow-xl hover:bg-[#fff5f3] transition-all duration-300">
-            <div className="mb-4 flex justify-center">
-              <Image
-                src="/sterility.svg"
-                alt="Стерильность"
-                width={60}
-                height={60}
-              />
-            </div>
-            <h3 className="font-semibold mb-2 text-sm sm:text-base">
-              Стерильность и качество
-            </h3>
-            <p className="text-[12px] sm:text-[14px]">
-              Мы строго соблюдаем все санитарные нормы и стандарты качества,
-              чтобы вы могли быть уверены в безопасности и надежности наших
-              услуг.
-            </p>
-          </div>
-
-          {/* Карточка 2 */}
-          <div className="p-6 rounded-2xl border border-[#f3f3f3] shadow-sm hover:shadow-xl hover:bg-[#fff5f3] transition-all duration-300">
-            <div className="mb-4 flex justify-center">
-              <Image src="/parking.svg" alt="Парковка" width={60} height={60} />
-            </div>
-            <h3 className="font-semibold mb-2 text-sm sm:text-base">
-              Места для парковки
-            </h3>
-            <p className="text-[12px] sm:text-[14px]">
-              Мы позаботились о том, чтобы рядом со студией были доступные
-              парковочные места для вашего удобства.
-            </p>
-          </div>
-
-          {/* Карточка 3 */}
-          <div className="p-6 rounded-2xl border border-[#f3f3f3] shadow-sm hover:shadow-xl hover:bg-[#fff5f3] transition-all duration-300">
-            <div className="mb-4 flex justify-center">
-              <Image src="/design.svg" alt="Дизайн" width={60} height={60} />
-            </div>
-            <h3 className="font-semibold mb-2 text-sm sm:text-base">
-              Дизайн любой сложности
-            </h3>
-            <p className="text-[12px] sm:text-[14px]">
-              Мы предоставляем 7-дневную гарантию на все покрытия. Если за это
-              время возникнут дефекты, мы бесплатно их устраним.
-            </p>
-          </div>
-
-          {/* Карточка 4 */}
-          <div className="p-6 rounded-2xl border border-[#f3f3f3] shadow-sm hover:shadow-xl hover:bg-[#fff5f3] transition-all duration-300">
-            <div className="mb-4 flex justify-center">
-              <Image
-                src="/location.svg"
-                alt="Местоположение"
-                width={60}
-                height={60}
-              />
-            </div>
-            <h3 className="font-semibold mb-2 text-sm sm:text-base">
-              Удобное местоположение студии
-            </h3>
-            <p className="text-[12px] sm:text-[14px]">
-              Наша студия расположена в удобном месте, что позволяет легко и
-              быстро добраться до нас.
-            </p>
-          </div>
+          {features.map((feature) => (
+            <FeatureCard key={feature.title} {...feature} />
+          ))}
         </div>
       </section>
 
@@ -215,32 +204,8 @@ export default function Home() {
 
         {/* Сетка карточек */}
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-6 px-4">
-          {[
-            { src: "/nail-service.svg", text: "Ногтевой сервис" },
-            { src: "/hair.svg", text: "Волосы" },
-            { src: "/brows.svg", text: "Брови и ресницы" },
-            { src: "/massage.svg", text: "Массаж" },
-            { src: "/face.svg", text: "Лицо" },
-            { src: "/piercing.svg", text: "Пирсинг" },
-            { src: "/kart-products.svg", text: "Препаратный педикюр KART" },
-            { src: "/complex.svg", text: "Комплексы" },
-            { src: "/depilation.svg", text: "Депиляция" },
-          ].map((item, idx) => (
-            <div
-              key={idx}
-              className="relative group overflow-hidden rounded-lg shadow-md"
-            >
-              <a className="block">
-                <img
-                  src={item.src}
-                  alt={item.text}
-                  className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute bottom-0 left-0 w-full bg-[#4b4845]/70 py-3 text-white text-center text-[12px] sm:text-[14px]">
-                  {item.text}
-                </div>
-              </a>
-            </div>
+          {services.map((service) => (
+            <ServiceCard key={service.text} {...service} />
           ))}
         </div>
 
@@ -336,26 +301,26 @@ export default function Home() {
       </section>
 
       {/* Мобильная версия */}
-      <Kart />
+      <MemoizedKart />
 
       {/* Цветная полоса */}
       <div className="w-full h-[40px] bg-[#fff3f1]"></div>
 
       {/* Секция с брендами */}
-      <BrandsCarousel />
+      <MemoizedBrandsCarousel />
 
       {/* Секция с сертификатами */}
       <section className="bg-[#FBF7F6]">
-        <GiftCertificates />
+        <MemoizedGiftCertificates />
       </section>
 
       {/* Секция с портфолио */}
       <section className="bg-white py-20 px-4 text-center text-[#4b4845]">
-        <PortfolioGallery />
+        <MemoizedPortfolioGallery />
       </section>
 
       {/* Подвал */}
-      <Footer />
+      <MemoizedFooter />
     </>
   );
 }

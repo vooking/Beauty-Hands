@@ -5,15 +5,34 @@ export default function YclientsButton() {
   const [widgetReady, setWidgetReady] = useState(false);
 
   useEffect(() => {
+    // Проверяем, не добавлен ли уже скрипт
+    if (document.querySelector('script[src="https://w298112.yclients.com/widgetJS"]')) {
+      setWidgetReady(true);
+      return;
+    }
+
     const script = document.createElement("script");
     script.src = "https://w298112.yclients.com/widgetJS";
     script.async = true;
+    script.defer = true;
+    script.setAttribute("data-id", "yclients-widget-script");
 
-    script.onload = () => {
+    const handleLoad = () => {
       setWidgetReady(true);
+      script.removeEventListener("load", handleLoad);
     };
 
+    script.addEventListener("load", handleLoad);
+
     document.body.appendChild(script);
+
+    return () => {
+      // Очистка при размонтировании
+      script.removeEventListener("load", handleLoad);
+      if (script.parentNode) {
+        document.body.removeChild(script);
+      }
+    };
   }, []);
 
   return null;

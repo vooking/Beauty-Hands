@@ -1,24 +1,53 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ComponentType } from 'react';
-import { JSX } from 'react/jsx-runtime';
 
-export default function withAuth<P extends JSX.IntrinsicAttributes>(WrappedComponent: ComponentType<P>) {
-    return (props: P) => {
-        const [authenticated, setAuthenticated] = useState(false);
-        const router = useRouter();
+export default function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
+  return function AuthenticatedComponent(props: P) {
+    const [authStatus, setAuthStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading');
+    const router = useRouter();
 
-        useEffect(() => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                router.push('/admin');
-            } else {
-                setAuthenticated(true);
-            }
-        }, []);
+    useEffect(() => {
+      // Проверка на клиентской стороне
+      if (typeof window === 'undefined') return;
 
-        if (!authenticated) return <p className="p-6">Загрузка...</p>;
+      const verifyAuth = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          
+          if (!token) {
+            setAuthStatus('unauthenticated');
+            router.push('/admin');
+            return;
+          }
 
-        return <WrappedComponent {...props} />;
-    };
+          setAuthStatus('authenticated');
+        } catch (error) {
+          console.error('Auth verification error:', error);
+          setAuthStatus('unauthenticated');
+          router.push('/admin');
+        }
+      };
+
+      verifyAuth();
+    }, [router]);
+
+    if (authStatus === 'loading') {
+      return (
+        <div className="flex justify-center items-center min-h-screen">
+          <p className="p-6 text-lg">Проверка авторизации...</p>
+        </div>
+      );
+    }
+
+    if (authStatus === 'unauthenticated') {
+      return (
+        <div className="flex justify-center items-center min-h-screen">
+          <p className="p-6 text-lg">Перенаправление на страницу входа...</p>
+        </div>
+      );
+    }
+
+    return <WrappedComponent {...props} />;
+  };
 }

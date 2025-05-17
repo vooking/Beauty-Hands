@@ -1,8 +1,41 @@
+"use client";
+
+import React from "react";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import ContactForm from "../components/ContactForm";
 import styles from "@/app/page.module.css";
 import "@/app/globals.css";
+
+type Contact = {
+  title: string;
+  address: string;
+  section: string;
+  hours: string;
+  mapLink: string;
+  mapSrc: string;
+};
+
+const contacts: Contact[] = [
+  {
+    title: "Чкаловская",
+    address: "Чкаловский просп., 7, Санкт-Петербург",
+    section: "Секция 215, этаж 2",
+    hours: "круглосуточно",
+    mapLink: "https://yandex.ru/maps/org/byuti_khends/1306142301/",
+    mapSrc:
+      "https://yandex.ru/map-widget/v1/org/byuti_khends/1306142301/?ll=30.289581%2C59.959435&z=15",
+  },
+  {
+    title: "Пионерская",
+    address: "Пионерская, 31, Санкт-Петербург",
+    section: "",
+    hours: "круглосуточно",
+    mapLink: "https://yandex.ru/maps/org/byutiful/22256535367/",
+    mapSrc:
+      "https://yandex.ru/map-widget/v1/?indoorLevel=1&ll=30.291440%2C59.958821&mode=search&oid=22256535367&ol=biz&z=16.93",
+  },
+];
 
 export default function Contacts() {
   return (
@@ -15,71 +48,38 @@ export default function Contacts() {
         </h2>
 
         <div className="max-w-5xl mx-auto space-y-32">
+          {contacts.map(({ title, address, section, hours, mapLink, mapSrc }, i) => (
+            <div key={i} className="grid md:grid-cols-2 gap-10 items-start md:items-center">
+              {/* Инфо */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <p className="font-semibold text-lg">📍 {address}</p>
+                  {section && <p>{section}</p>}
+                  <p className="mt-2">🕘 Часы работы: {hours}</p>
+                  <a
+                    href={mapLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm inline-block"
+                  >
+                    Открыть на карте →
+                  </a>
+                </div>
+              </div>
 
-          {/* Чкаловская */}
-          <div className="grid md:grid-cols-2 gap-10 items-start md:items-center">
-            {/* Инфо */}
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <p className="font-semibold text-lg">
-                  📍 Чкаловский просп., 7, Санкт-Петербург
-                </p>
-                <p>Секция 215, этаж 2</p>
-                <p className="mt-2">🕘 Часы работы: круглосуточно</p>
-                <a
-                  href="https://yandex.ru/maps/org/byuti_khends/1306142301/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-sm inline-block"
-                >
-                  Открыть на карте →
-                </a>
+              {/* Карта */}
+              <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200">
+                <iframe
+                  src={mapSrc}
+                  width="100%"
+                  height="100%"
+                  allowFullScreen
+                  className="border-0"
+                  title={`Карта - ${title}`}
+                />
               </div>
             </div>
-
-            {/* Карта */}
-            <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200">
-              <iframe
-                src="https://yandex.ru/map-widget/v1/org/byuti_khends/1306142301/?ll=30.289581%2C59.959435&z=15"
-                width="100%"
-                height="100%"
-                allowFullScreen
-                className="border-0"
-              ></iframe>
-            </div>
-          </div>
-
-          {/* Пионерская */}
-          <div className="grid md:grid-cols-2 gap-10 items-start md:items-center">
-            {/* Инфо */}
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <p className="font-semibold text-lg">
-                  📍 Пионерская, 31, Санкт-Петербург
-                </p>
-                <p className="mt-2">🕘 Часы работы: круглосуточно</p>
-                <a
-                  href="https://yandex.ru/maps/org/byutiful/22256535367/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-sm inline-block"
-                >
-                  Открыть на карте →
-                </a>
-              </div>
-            </div>
-
-            {/* Карта */}
-            <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200">
-              <iframe
-                src="https://yandex.ru/map-widget/v1/?indoorLevel=1&ll=30.291440%2C59.958821&mode=search&oid=22256535367&ol=biz&z=16.93"
-                width="100%"
-                height="100%"
-                allowFullScreen
-                className="border-0"
-              ></iframe>
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Контакты и форма */}
@@ -135,12 +135,12 @@ export default function Contacts() {
                 <span>WhatsApp</span>
               </a>
             </li>
-            
           </ul>
 
           <p className={`text-[20px] mb-4 font-semibold ${styles.titleMain}`}>
             Или заполните форму, которую мы обязательно рассмотрим
           </p>
+
           <ContactForm />
         </div>
       </section>

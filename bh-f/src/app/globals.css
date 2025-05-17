@@ -37,3 +37,22 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 40;
+}
+
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 90vw;
+  max-height: 90vh;
+  transform: translate(-50%, -50%);
+  outline: none;
+  background: transparent;
+  overflow: hidden;
+}
