@@ -7,7 +7,6 @@ import styles from "./page.module.css";
 import "@/app/globals.css";
 import BrandsCarousel from "./components/BrandsCarousel";
 import PortfolioGallery from "./components/PortfolioGallery";
-import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import YclientsButton from "./components/YclientsButton";
 import GiftCertificates from "./components/GiftCertificates";
@@ -18,7 +17,6 @@ import FeatureCard from "./components/FeatureCard";
 
 // Мемоизированные компоненты
 const MemoizedHeader = memo(Header);
-const MemoizedFooter = memo(Footer);
 const MemoizedYclientsButton = memo(YclientsButton);
 const MemoizedGiftCertificates = memo(GiftCertificates);
 const MemoizedAboutUs = memo(AboutUs);
@@ -319,8 +317,6 @@ export default function Home() {
         <MemoizedPortfolioGallery />
       </section>
 
-      {/* Подвал */}
-      <MemoizedFooter />
     </>
   );
 }

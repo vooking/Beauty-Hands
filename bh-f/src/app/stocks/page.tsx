@@ -1,7 +1,5 @@
 "use client";
 
-import Header from "../components/layout/Header";
-import Footer from "../components/layout/Footer";
 import styles from "@/app/page.module.css";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -78,8 +76,6 @@ export default function Stocks() {
 
   return (
     <>
-      <Header />
-
       <section className="bg-white py-20 px-4 text-center text-[#4b4845] animate-fadeIn">
         <div className="max-w-5xl mx-auto">
           <h2 className={`text-[36px] font-semibold mb-10 ${styles.titleMain}`}>
@@ -178,7 +174,6 @@ export default function Stocks() {
         </div>
       </section>
 
-      <Footer />
     </>
   );
 }

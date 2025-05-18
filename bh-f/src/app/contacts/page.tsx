@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import Header from "../components/layout/Header";
-import Footer from "../components/layout/Footer";
 import ContactForm from "../components/ContactForm";
 import styles from "@/app/page.module.css";
 import "@/app/globals.css";
@@ -40,8 +38,6 @@ const contacts: Contact[] = [
 export default function Contacts() {
   return (
     <>
-      <Header />
-
       <section className="bg-white py-20 px-4 text-[#4b4845] animate-fadeIn">
         <h2 className={`text-[36px] font-semibold text-center mb-20 ${styles.titleMain}`}>
           Контакты
@@ -145,7 +141,6 @@ export default function Contacts() {
         </div>
       </section>
 
-      <Footer />
     </>
   );
 }
