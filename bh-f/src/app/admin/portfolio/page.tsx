@@ -8,13 +8,13 @@ import PortfolioCard from "@/app/components/PortfolioCard";
 interface PortfolioItem {
   id: number;
   title: string;
-  category_id: string;
+  category_id: number;
   image: string;
 }
 
 interface FormItem {
   title: string;
-  category_id: string;
+  category_id: number | "";
   images: File[];
 }
 
@@ -26,7 +26,9 @@ const PortfolioAdmin = () => {
     category_id: "",
     images: [],
   });
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
   const [filterCategory, setFilterCategory] = useState("");
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
@@ -52,7 +54,7 @@ const PortfolioAdmin = () => {
 
         setCategories(categoriesData);
         setPortfolio(portfolioData);
-        setLoading(false);
+        setInitialLoading(false);
       } catch (error) {
         console.error("Ошибка загрузки данных:", error);
       }
@@ -68,14 +70,14 @@ const PortfolioAdmin = () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    setLoading(true);
+    setUploading(true);
 
     try {
       // Отправляем каждое изображение отдельно
       const uploadPromises = form.images.map(async (image) => {
         const formData = new FormData();
         formData.append("title", form.title);
-        formData.append("category_id", form.category_id);
+        formData.append("category_id", String(form.category_id));
         formData.append("image", image);
 
         const res = await fetch(
@@ -98,7 +100,7 @@ const PortfolioAdmin = () => {
     } catch (err: any) {
       alert(err.message || "Ошибка при добавлении изображений");
     } finally {
-      setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -124,7 +126,10 @@ const PortfolioAdmin = () => {
   }, []);
 
   const handleBulkDelete = async () => {
-    if (selectedItems.length === 0 || !confirm(`Удалить ${selectedItems.length} выбранных элементов?`)) 
+    if (
+      selectedItems.length === 0 ||
+      !confirm(`Удалить ${selectedItems.length} выбранных элементов?`)
+    )
       return;
 
     const token = localStorage.getItem("token");
@@ -143,7 +148,9 @@ const PortfolioAdmin = () => {
       });
 
       await Promise.all(deletePromises);
-      setPortfolio((prev) => prev.filter((item) => !selectedItems.includes(item.id)));
+      setPortfolio((prev) =>
+        prev.filter((item) => !selectedItems.includes(item.id))
+      );
       setSelectedItems([]);
       alert(`Успешно удалено ${selectedItems.length} элементов`);
     } catch (err: any) {
@@ -165,10 +172,8 @@ const PortfolioAdmin = () => {
   };
 
   const toggleSelectItem = (id: number) => {
-    setSelectedItems(prev => 
-      prev.includes(id) 
-        ? prev.filter(itemId => itemId !== id) 
-        : [...prev, id]
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
     );
   };
 
@@ -176,12 +181,12 @@ const PortfolioAdmin = () => {
     if (selectedItems.length === filteredPortfolio.length) {
       setSelectedItems([]);
     } else {
-      setSelectedItems(filteredPortfolio.map(item => item.id));
+      setSelectedItems(filteredPortfolio.map((item) => item.id));
     }
   };
 
   const filteredPortfolio = filterCategory
-    ? portfolio.filter((item) => item.category_id === filterCategory)
+    ? portfolio.filter((item) => item.category_id === Number(filterCategory))
     : portfolio;
 
   return (
@@ -201,7 +206,9 @@ const PortfolioAdmin = () => {
 
           <select
             value={form.category_id}
-            onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, category_id: Number(e.target.value) })
+            }
             className="w-full border rounded p-2"
             required
           >
@@ -216,7 +223,9 @@ const PortfolioAdmin = () => {
           </select>
 
           <div>
-            <label className="block mb-2 font-medium">Изображения: ({form.images.length} выбрано)</label>
+            <label className="block mb-2 font-medium">
+              Изображения: ({form.images.length} выбрано)
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -247,10 +256,12 @@ const PortfolioAdmin = () => {
 
           <button
             type="submit"
-            disabled={loading || form.images.length === 0}
+            disabled={uploading || form.images.length === 0}
             className="bg-black text-white px-4 py-2 rounded hover:bg-gray-500 disabled:bg-gray-400"
           >
-            {loading ? "Загрузка..." : `Добавить ${form.images.length} изображений`}
+            {uploading
+              ? "Загрузка..."
+              : `Добавить ${form.images.length} изображений`}
           </button>
         </form>
 
@@ -278,7 +289,7 @@ const PortfolioAdmin = () => {
           )}
         </div>
 
-        {loading ? (
+        {initialLoading ? (
           <p className="text-gray-500">Загрузка...</p>
         ) : filteredPortfolio.length === 0 ? (
           <p className="text-gray-500">Изображений пока нет</p>
@@ -287,16 +298,18 @@ const PortfolioAdmin = () => {
             <div className="col-span-full flex items-center p-2 bg-gray-100 rounded">
               <input
                 type="checkbox"
-                checked={selectedItems.length === filteredPortfolio.length && filteredPortfolio.length > 0}
+                checked={
+                  selectedItems.length === filteredPortfolio.length &&
+                  filteredPortfolio.length > 0
+                }
                 onChange={toggleSelectAll}
                 className="h-4 w-4 mr-2"
               />
               <span>Выбрать все</span>
             </div>
             {filteredPortfolio.map((item) => {
-              const category = categories.find(
-                (c) => c.id === item.category_id
-              );
+              const category = categories.find((c) => c.id == item.category_id);
+
               return (
                 <div key={item.id} className="relative group">
                   <input

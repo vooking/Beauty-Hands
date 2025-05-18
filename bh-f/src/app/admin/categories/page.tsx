@@ -103,7 +103,7 @@ const CategoriesAdmin = () => {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}` 
             },
-            credentials: 'include' // Добавьте это для CORS с credentials
+            credentials: 'include'
         });
 
         if (!response.ok) {
