@@ -114,10 +114,10 @@ const ServicesTable: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.name)}
-              className={`shrink-0 relative text-sm transition-all duration-300 pb-1 px-2 ${
+              className={`text-sm pb-1 px-3 relative transition-all ${
                 activeCategory === cat.name
                   ? "text-[#FFC5B8] font-medium after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-[2px] after:w-full after:bg-[#FFC5B8]"
-                  : "text-gray-700 hover:text-[#FFC5B8] hover:after:content-[''] hover:after:absolute hover:after:left-0 hover:after:bottom-0 hover:after:h-[2px] hover:after:w-full hover:bg-[#FFC5B8]"
+                : "text-gray-700 hover:text-[#FFC5B8] hover:after:content-[''] hover:after:absolute hover:after:left-0 hover:after:bottom-0 hover:after:h-[2px] hover:after:w-full hover:after:bg-[#FFC5B8]"
               }`}
             >
               {cat.name}

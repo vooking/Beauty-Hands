@@ -15,7 +15,7 @@ const PortfolioCard: React.FC<Props> = ({ item, category, onDelete }) => {
         className="w-full h-48 object-cover rounded mb-2"
       />
       <p className="text-sm mb-1">
-        <strong>Категория:</strong> {category?.name || "Неизвестно"}
+        <strong>Категория:</strong> {category.name || "Неизвестно"}
       </p>
       {item.title && (
         <p className="text-sm">
