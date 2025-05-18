@@ -158,7 +158,7 @@ const ServicesTable: React.FC = () => {
             </tbody>
           </table>
         ) : (
-          <div className="text-center py-6 text-gray-400">Услуги не найдены</div>
+          <div className="text-center py-6 text-gray-400">Услуг пока нет</div>
         )}
       </div>
 
