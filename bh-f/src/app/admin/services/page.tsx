@@ -4,20 +4,30 @@ import { useEffect, useState } from 'react';
 import AdminNavbar from '@/app/components/AdminNavbar';
 import withAuth from '@/app/components/withAuth';
 
+interface ServiceFormItem {
+  id: number;
+  name: string;
+  priceMaster: string;
+  priceTopMaster: string;
+  hasTopMasterPrice: boolean;
+}
+
 const ServicesAdmin = () => {
     const [services, setServices] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
     const [filteredServices, setFilteredServices] = useState<any[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-    const [form, setForm] = useState({
-        id: null as number | null,
-        category_id: '',
+    const [formItems, setFormItems] = useState<ServiceFormItem[]>([
+      {
+        id: Date.now(),
         name: '',
         priceMaster: '',
         priceTopMaster: '',
         hasTopMasterPrice: false
-    });
-    const [isEditing, setIsEditing] = useState(false);
+      }
+    ]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+    const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -31,6 +41,9 @@ const ServicesAdmin = () => {
                 });
                 const categoriesData = await categoriesRes.json();
                 setCategories(categoriesData);
+                if (categoriesData.length > 0) {
+                  setSelectedCategoryId(categoriesData[0].id);
+                }
 
                 // Загружаем услуги
                 const servicesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
@@ -71,75 +84,141 @@ const ServicesAdmin = () => {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.checked });
-    };
-
     const handleCategoryFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedCategory(e.target.value);
+    };
+
+    const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedCategoryId(e.target.value);
+    };
+
+    const handleServiceSelect = (id: number, isChecked: boolean) => {
+        if (isChecked) {
+            setSelectedServices([...selectedServices, id]);
+        } else {
+            setSelectedServices(selectedServices.filter(serviceId => serviceId !== id));
+        }
+    };
+
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelectedServices(filteredServices.map(service => service.id));
+        } else {
+            setSelectedServices([]);
+        }
+    };
+
+    const handleFormItemChange = (id: number, field: keyof ServiceFormItem, value: any) => {
+        setFormItems(formItems.map(item => 
+            item.id === id ? { ...item, [field]: value } : item
+        ));
+    };
+
+    const handleCheckboxChange = (id: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        handleFormItemChange(id, e.target.name as keyof ServiceFormItem, e.target.checked);
+    };
+
+    const addFormItem = () => {
+        setFormItems([
+            ...formItems,
+            {
+                id: Date.now(),
+                name: '',
+                priceMaster: '',
+                priceTopMaster: '',
+                hasTopMasterPrice: false
+            }
+        ]);
+    };
+
+    const removeFormItem = (id: number) => {
+        if (formItems.length > 1) {
+            setFormItems(formItems.filter(item => item.id !== id));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token || !selectedCategoryId) return;
 
         try {
-            const prices: any = { master: form.priceMaster };
+            const validItems = formItems.filter(item => item.name.trim() && item.priceMaster);
             
-            if (form.hasTopMasterPrice && form.priceTopMaster) {
-                prices.topMaster = form.priceTopMaster;
+            if (validItems.length === 0) {
+                alert('Заполните хотя бы одну услугу');
+                return;
             }
 
-            const url = isEditing 
-                ? `${process.env.NEXT_PUBLIC_API_URL}/admin/services/${form.id}`
-                : `${process.env.NEXT_PUBLIC_API_URL}/admin/services`;
-            
-            const method = isEditing ? 'PUT' : 'POST';
+            const responses = await Promise.all(
+                validItems.map(item => {
+                    const prices: any = { master: item.priceMaster };
+                    
+                    if (item.hasTopMasterPrice && item.priceTopMaster) {
+                        prices.topMaster = item.priceTopMaster;
+                    }
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    category_id: form.category_id,
-                    name: form.name,
-                    prices: JSON.stringify(prices)
+                    return fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/services`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                            category_id: selectedCategoryId,
+                            name: item.name,
+                            prices: JSON.stringify(prices)
+                        })
+                    });
                 })
-            });
+            );
 
-            if (!response.ok) throw new Error('Ошибка сохранения');
+            const allOk = responses.every(response => response.ok);
+            if (!allOk) throw new Error('Ошибка при добавлении некоторых услуг');
 
+            // Обновляем список услуг
             const updatedServices = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/services`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const updatedData = await updatedServices.json();
             
             setServices(updatedData);
-            resetForm();
+            setFormItems([{
+                id: Date.now(),
+                name: '',
+                priceMaster: '',
+                priceTopMaster: '',
+                hasTopMasterPrice: false
+            }]);
+            alert(`Успешно добавлено ${validItems.length} услуг`);
         } catch (e) {
-            alert(`Ошибка при ${isEditing ? 'редактировании' : 'добавлении'}`);
+            alert('Ошибка при добавлении услуг');
         }
     };
 
-    const handleEdit = (service: any) => {
-        const prices = typeof service.prices === 'string' ? JSON.parse(service.prices) : service.prices;
-        
-        setForm({
-            id: service.id,
-            category_id: service.category_id,
-            name: service.name,
-            priceMaster: prices.master || '',
-            priceTopMaster: prices.topMaster || '',
-            hasTopMasterPrice: !!prices.topMaster
-        });
-        setIsEditing(true);
+    const handleBulkDelete = async () => {
+        const token = localStorage.getItem('token');
+        if (!token || selectedServices.length === 0 || !confirm(`Удалить ${selectedServices.length} выбранных услуг?`)) return;
+
+        try {
+            const responses = await Promise.all(
+                selectedServices.map(id => 
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/${id}`, {
+                        method: 'DELETE',
+                        headers: { Authorization: `Bearer ${token}` },
+                    })
+                )
+            );
+
+            const allOk = responses.every(response => response.ok);
+            if (!allOk) throw new Error('Ошибка при удалении некоторых услуг');
+
+            setServices(services.filter(s => !selectedServices.includes(s.id)));
+            setSelectedServices([]);
+            alert(`Успешно удалено ${selectedServices.length} услуг`);
+        } catch (error) {
+            alert('Ошибка при массовом удалении');
+        }
     };
 
     const handleDelete = async (id: number) => {
@@ -158,32 +237,20 @@ const ServicesAdmin = () => {
         }
     };
 
-    const resetForm = () => {
-        setForm({
-            id: null,
-            category_id: categories.length > 0 ? categories[0].id : '',
-            name: '',
-            priceMaster: '',
-            priceTopMaster: '',
-            hasTopMasterPrice: false
-        });
-        setIsEditing(false);
-    };
-
     return (
         <>
             <AdminNavbar />
             <main className="p-6 max-w-4xl mx-auto text-[#4b4845]">
                 <h1 className="text-2xl font-semibold mb-6">Управление услугами</h1>
 
-                {/* Форма добавления/редактирования */}
-                <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+                {/* Форма добавления услуг */}
+                <form onSubmit={handleSubmit} className="space-y-4 mb-8 bg-gray-50 p-4 rounded">
+                    <h2 className="text-xl font-semibold">Добавление услуг</h2>
                     <div>
                         <label className="block mb-1 font-medium">Категория</label>
                         <select 
-                            name="category_id" 
-                            value={form.category_id} 
-                            onChange={handleChange} 
+                            value={selectedCategoryId} 
+                            onChange={handleCategoryChange} 
                             className="border p-2 w-full rounded"
                             required
                         >
@@ -193,86 +260,109 @@ const ServicesAdmin = () => {
                             ))}
                         </select>
                     </div>
-                    <div>
-                        <label className="block mb-1 font-medium">Название услуги</label>
-                        <input 
-                            name="name" 
-                            value={form.name} 
-                            onChange={handleChange} 
-                            required 
-                            className="border p-2 w-full rounded" 
-                        />
-                    </div>
-                    <div>
-                        <label className="block mb-1 font-medium">Цена мастера (₽)</label>
-                        <input 
-                            name="priceMaster" 
-                            value={form.priceMaster} 
-                            onChange={handleChange} 
-                            required 
-                            type="number"
-                            className="border p-2 w-full rounded" 
-                            placeholder="Введите цену"
-                        />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            id="topMasterPrice"
-                            name="hasTopMasterPrice"
-                            checked={form.hasTopMasterPrice}
-                            onChange={handleCheckboxChange}
-                            className="h-4 w-4"
-                        />
-                        <label htmlFor="topMasterPrice" className="font-medium">
-                            Добавить цену для топ-мастера
-                        </label>
-                    </div>
-                    {form.hasTopMasterPrice && (
-                        <div>
-                            <label className="block mb-1 font-medium">Цена топ-мастера (₽)</label>
-                            <input 
-                                name="priceTopMaster" 
-                                value={form.priceTopMaster} 
-                                onChange={handleChange} 
-                                type="number"
-                                className="border p-2 w-full rounded" 
-                                placeholder="Введите цену"
-                            />
+
+                    {formItems.map((item, index) => (
+                        <div key={item.id} className="space-y-4 border-b pb-4 mb-4">
+                            <div className="flex justify-between items-center">
+                                <h3 className="font-medium">Услуга №{index + 1}</h3>
+                                {formItems.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeFormItem(item.id)}
+                                        className="text-red-600 hover:text-red-800"
+                                    >
+                                        Удалить
+                                    </button>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block mb-1 font-medium">Название услуги</label>
+                                <input 
+                                    value={item.name} 
+                                    onChange={(e) => handleFormItemChange(item.id, 'name', e.target.value)}
+                                    required 
+                                    className="border p-2 w-full rounded" 
+                                />
+                            </div>
+                            <div>
+                                <label className="block mb-1 font-medium">Цена мастера (₽)</label>
+                                <input 
+                                    value={item.priceMaster} 
+                                    onChange={(e) => handleFormItemChange(item.id, 'priceMaster', e.target.value)}
+                                    required 
+                                    type="number"
+                                    className="border p-2 w-full rounded" 
+                                    placeholder="Введите цену"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id={`topMasterPrice-${item.id}`}
+                                    name="hasTopMasterPrice"
+                                    checked={item.hasTopMasterPrice}
+                                    onChange={(e) => handleCheckboxChange(item.id, e)}
+                                    className="h-4 w-4"
+                                />
+                                <label htmlFor={`topMasterPrice-${item.id}`} className="font-medium">
+                                    Добавить цену для топ-мастера
+                                </label>
+                            </div>
+                            {item.hasTopMasterPrice && (
+                                <div>
+                                    <label className="block mb-1 font-medium">Цена топ-мастера (₽)</label>
+                                    <input 
+                                        value={item.priceTopMaster} 
+                                        onChange={(e) => handleFormItemChange(item.id, 'priceTopMaster', e.target.value)}
+                                        type="number"
+                                        className="border p-2 w-full rounded" 
+                                        placeholder="Введите цену"
+                                    />
+                                </div>
+                            )}
                         </div>
-                    )}
-                    <div className="flex gap-2">
+                    ))}
+
+                    <div className="flex gap-4">
+                        <button 
+                            type="button"
+                            onClick={addFormItem}
+                            className="flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                        >
+                            <span className="text-xl">+</span> Добавить еще услугу
+                        </button>
                         <button 
                             type="submit" 
-                            className="bg-black text-white px-4 py-2 rounded hover:bg-gray-500"
+                            className="bg-black text-white px-4 py-2 rounded hover:bg-gray-500 ml-auto"
                         >
-                            {isEditing ? 'Сохранить' : 'Добавить'}
+                            Добавить
                         </button>
-                        {isEditing && (
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="bg-gray-500 text-white px-4 py-2 rounded"
-                            >
-                                Отмена
-                            </button>
-                        )}
                     </div>
                 </form>
 
                 {/* Фильтр по категориям */}
-                <div className="mb-4">
-                    <label className="block mb-1 font-medium">Фильтр по категории</label>
-                    <select 
-                        value={selectedCategory} 
-                        onChange={handleCategoryFilterChange}
-                        className="border p-2 rounded"
-                    >
-                        <option value="Все">Все категории</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
+                <div className="mb-4 flex justify-between items-center">
+                    <div>
+                        <label className="block mb-1 font-medium">Фильтр по категории</label>
+                        <select 
+                            value={selectedCategory} 
+                            onChange={handleCategoryFilterChange}
+                            className="border p-2 rounded"
+                        >
+                            <option value="Все">Все категории</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    {selectedServices.length > 0 && (
+                        <button
+                            onClick={handleBulkDelete}
+                            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                        >
+                            Удалить выбранные ({selectedServices.length})
+                        </button>
+                    )}
                 </div>
 
                 {/* Таблица */}
@@ -280,6 +370,14 @@ const ServicesAdmin = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-100 text-gray-700">
+                                <th className="py-2 px-4">
+                                    <input
+                                        type="checkbox"
+                                        onChange={handleSelectAll}
+                                        checked={selectedServices.length === filteredServices.length && filteredServices.length > 0}
+                                        className="h-4 w-4"
+                                    />
+                                </th>
                                 <th className="py-2 px-4">Категория</th>
                                 <th className="py-2 px-4">Название</th>
                                 <th className="py-2 px-4">Цены</th>
@@ -292,12 +390,30 @@ const ServicesAdmin = () => {
                                     const category = categories.find(c => c.id === service.category_id);
                                     return (
                                         <tr key={service.id} className="border-b">
+                                            <td className="py-2 px-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedServices.includes(service.id)}
+                                                    onChange={(e) => handleServiceSelect(service.id, e.target.checked)}
+                                                    className="h-4 w-4"
+                                                />
+                                            </td>
                                             <td className="py-2 px-4">{category?.name || 'Неизвестно'}</td>
                                             <td className="py-2 px-4">{service.name}</td>
                                             <td className="py-2 px-4">{parsePrice(service.prices)}</td>
                                             <td className="py-2 px-4 space-x-2">
                                                 <button
-                                                    onClick={() => handleEdit(service)}
+                                                    onClick={() => {
+                                                        const prices = typeof service.prices === 'string' ? JSON.parse(service.prices) : service.prices;
+                                                        setFormItems([{
+                                                            id: Date.now(),
+                                                            name: service.name,
+                                                            priceMaster: prices.master || '',
+                                                            priceTopMaster: prices.topMaster || '',
+                                                            hasTopMasterPrice: !!prices.topMaster
+                                                        }]);
+                                                        setSelectedCategoryId(service.category_id);
+                                                    }}
                                                     className="text-blue-600 hover:underline"
                                                 >
                                                     Редактировать
@@ -314,7 +430,7 @@ const ServicesAdmin = () => {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={4} className="py-4 text-center text-gray-500">
+                                    <td colSpan={5} className="py-4 text-center text-gray-500">
                                         Услуги не найдены
                                     </td>
                                 </tr>
