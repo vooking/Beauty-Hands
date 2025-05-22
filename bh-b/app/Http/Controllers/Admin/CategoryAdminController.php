@@ -8,9 +8,15 @@ use Illuminate\Http\Request;
 
 class CategoryAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Category::all());
+        $query = Category::query();
+
+        if ($request->has('type')) {
+            $query->where('type', $request->type)
+            ->orWhere('type', 'both');
+        }
+        return response()->json($query->get());
     }
 
     public function store(Request $request)
@@ -30,7 +36,7 @@ class CategoryAdminController extends Controller
     public function update(Request $request, Category $category)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255|unique:categories,name,'.$category->id,
+            'name' => 'sometimes|required|string|max:255|unique:categories,name,' . $category->id,
             'type' => 'sometimes|required|in:portfolio,service,both',
         ]);
 
@@ -46,7 +52,6 @@ class CategoryAdminController extends Controller
     public function destroy(Category $category)
     {
         try {
-            // Проверяем, используется ли категория
             if ($category->services()->exists() || $category->portfolios()->exists()) {
                 return response()->json([
                     'message' => 'Категория используется и не может быть удалена'

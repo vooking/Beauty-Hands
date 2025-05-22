@@ -289,7 +289,7 @@ export default function PortfolioGallery() {
                 src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${selectedImage.image_url}`}
                 alt={selectedImage.title || ""}
                 fill
-                quality={100} // здесь качество выставляем на максимум
+                quality={100} 
                 className="object-contain"
               />
             </div>

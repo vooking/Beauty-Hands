@@ -204,10 +204,10 @@ const CategoriesAdmin = () => {
                     </button>
                     <button
                       onClick={() => handleDelete(category.id)}
-                      className="text-red-600 hover:underline"
+                      className="text-red-600 hover:text-red-800"
                       disabled={deleteLoading}
                     >
-                      {deleteLoading ? 'Удаление...' : 'Удалить'}
+                      Удалить
                     </button>
                   </td>
                 </tr>

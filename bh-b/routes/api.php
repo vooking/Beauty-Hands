@@ -23,7 +23,7 @@ Route::get('/services', [ServiceController::class, 'index']);
 Route::get('/portfolio', [PortfolioController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/admin', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 

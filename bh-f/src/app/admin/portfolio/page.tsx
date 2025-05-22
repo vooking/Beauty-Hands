@@ -39,7 +39,7 @@ const PortfolioAdmin = () => {
     const fetchData = async () => {
       try {
         const [categoriesRes, portfolioRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/categories`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/categories?type=portfolio`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/portfolio`, {
