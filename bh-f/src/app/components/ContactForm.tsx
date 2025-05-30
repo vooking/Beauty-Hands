@@ -10,9 +10,21 @@ export default function ContactForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Загрузка скрипта reCAPTCHA v2
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://www.google.com/recaptcha/api.js';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Разрешаем только русские и английские буквы и пробелы
     if (/^[а-яА-ЯёЁa-zA-Z\s]*$/.test(value)) {
       setForm(prev => ({ ...prev, name: value }));
       if (success) setSuccess(false);
@@ -22,16 +34,13 @@ export default function ContactForm() {
 
   const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Удаляем все нецифровые символы, кроме начального +
     const cleanedValue = value.replace(/[^\d+]/g, '');
     
-    // Обеспечиваем формат +7XXXXXXXXXX (всего 11 цифр с +)
     if (cleanedValue.startsWith('+7') && cleanedValue.length <= 12) {
       setForm(prev => ({ ...prev, phone: cleanedValue }));
       if (success) setSuccess(false);
       if (error) setError(null);
     } else if (cleanedValue === '+' || cleanedValue === '') {
-      // Разрешаем + или сброс к +7
       setForm(prev => ({ ...prev, phone: '+7' }));
     }
   }, [success, error]);
@@ -45,9 +54,18 @@ export default function ContactForm() {
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Дополнительная проверка телефона перед отправкой
     if (form.phone.length !== 12) {
       setError('Номер телефона должен содержать 11 цифр (включая +7)');
+      return;
+    }
+
+    // Получаем токен reCAPTCHA
+    const captchaToken = (document.querySelector(
+      '.g-recaptcha textarea[name="g-recaptcha-response"]'
+    ) as HTMLTextAreaElement)?.value;
+
+    if (!captchaToken) {
+      setError('Пожалуйста, подтвердите, что вы не робот');
       return;
     }
 
@@ -62,13 +80,15 @@ export default function ContactForm() {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer your-token',
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, 'g-recaptcha-response': captchaToken }),
       });
 
       if (!response.ok) throw new Error('Ошибка при отправке');
 
       setForm({ name: '', phone: '+7', message: '' });
       setSuccess(true);
+      // Сброс reCAPTCHA после успешной отправки
+      (window as any).grecaptcha?.reset();
     } catch {
       setError('Не удалось отправить сообщение. Попробуйте позже.');
     } finally {
@@ -119,6 +139,9 @@ export default function ContactForm() {
         className="w-full p-3 border rounded h-32"
         required
       />
+
+      {/* reCAPTCHA v2 */}
+      <div className="g-recaptcha" data-sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}></div>
 
       <button
         type="submit"
