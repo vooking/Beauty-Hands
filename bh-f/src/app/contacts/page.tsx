@@ -192,7 +192,7 @@ export default function Contacts() {
               </li>
               <li>
                 <a
-                  href="https://vk.com/"
+                  href="https://vk.com/studianailsbh?from=groups"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="VK"
@@ -204,7 +204,7 @@ export default function Contacts() {
               </li>
               <li>
                 <a
-                  href="https://wa.me/"
+                  href="https://api.whatsapp.com/send/?phone=79213904787&text&type=phone_number&app_absent=0"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp"

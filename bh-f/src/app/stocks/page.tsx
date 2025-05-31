@@ -43,12 +43,12 @@ const socialLinks = [
     label: "Telegram",
   },
   {
-    href: "https://vk.com/",
+    href: "https://vk.com/studianailsbh?from=groups",
     icon: "/vk.svg",
     label: "ВКонтакте",
   },
   {
-    href: "https://wa.me/",
+    href: "https://api.whatsapp.com/send/?phone=79213904787&text&type=phone_number&app_absent=0",
     icon: "/whatsapp.svg",
     label: "WhatsApp",
   },

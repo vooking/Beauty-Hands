@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { ChevronUp } from "lucide-react";
 import Link from "next/link";
 import styles from "@/app/page.module.css";
-import "@/app/globals.css";
 
 export default function FooterMobile() {
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -93,10 +92,10 @@ export default function FooterMobile() {
             <a href="https://t.me/" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
               <img src="/telegram.svg" alt="Telegram" className="w-5 h-5" />
             </a>
-            <a href="https://vk.com/" target="_blank" rel="noopener noreferrer" aria-label="VK">
+            <a href="https://vk.com/studianailsbh?from=groups" target="_blank" rel="noopener noreferrer" aria-label="VK">
               <img src="/vk.svg" alt="VK" className="w-5 h-5" />
             </a>
-            <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+            <a href="https://api.whatsapp.com/send/?phone=79213904787&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
               <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
             </a>
           </div>

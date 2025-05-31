@@ -91,8 +91,8 @@ function NavLink({
 function SocialIcons() {
   const icons = [
     { href: "https://t.me/", label: "Telegram", icon: "/telegram.svg" },
-    { href: "https://vk.com/", label: "VK", icon: "/vk.svg" },
-    { href: "https://wa.me/", label: "WhatsApp", icon: "/whatsapp.svg" },
+    { href: "https://vk.com/studianailsbh?from=groups", label: "VK", icon: "/vk.svg" },
+    { href: "https://api.whatsapp.com/send/?phone=79213904787&text&type=phone_number&app_absent=0", label: "WhatsApp", icon: "/whatsapp.svg" },
   ];
   return (
     <div className="flex gap-6 mt-2 justify-center">

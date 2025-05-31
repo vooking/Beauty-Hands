@@ -12,13 +12,15 @@ export default function FooterDesktop() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToTop = () =>
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const titleClass = `text-[20px] font-semibold mb-2 ${styles.titleMain}`;
+  const linkHoverClass = "hover:text-[#FFC5B8] transition";
+  const textSmClass = "text-sm";
 
   return (
     <footer className="hidden md:block bg-[#FBF7F6] text-[#4b4845] text-sm py-14 px-20">
       <div className="grid grid-cols-4 gap-10 max-w-screen-xl mx-auto">
-
         {/* Логотип и информация */}
         <div className="space-y-4">
           <h3 className={`text-lg md:text-xl font-light ${styles.logo}`}>BEAUTY HANDS</h3>
@@ -30,46 +32,69 @@ export default function FooterDesktop() {
           <p className="text-xs mt-2">Все права защищены © 2014—2025</p>
           <div className="flex gap-4 mt-4">
             <SocialLink href="https://t.me/" alt="Telegram" icon="/telegram.svg" />
-            <SocialLink href="https://vk.com/" alt="VK" icon="/vk.svg" />
-            <SocialLink href="https://wa.me/" alt="WhatsApp" icon="/whatsapp.svg" />
+            <SocialLink href="https://vk.com/studianailsbh?from=groups" alt="VK" icon="/vk.svg" />
+            <SocialLink href="https://api.whatsapp.com/send/?phone=79213904787&text&type=phone_number&app_absent=0" alt="WhatsApp" icon="/whatsapp.svg" />
           </div>
         </div>
 
         {/* Главная */}
-        <FooterColumn title="Главная">
-          <FooterLink href="/">О нас</FooterLink>
-          <FooterLink href="/">Услуги</FooterLink>
-          <FooterLink href="/">Прайс-лист</FooterLink>
-          <FooterLink href="/">Партнеры</FooterLink>
-          <FooterLink href="/">Акции</FooterLink>
-          <FooterLink href="/">Портфолио работ</FooterLink>
-        </FooterColumn>
+        <div className="space-y-2">
+          <h4 className={titleClass}>Меню</h4>
+          <ul className="space-y-1">
+            {[
+              ["Главная", "/"],
+              ["Услуги", "/#services"],
+              ["Прайс-лист", "/price"],
+              ["Портфолио работ", "/portfolio"],
+              ["Акции", "/stocks"],
+              ["Контакты", "/contacts"],
+            ].map(([label, href]) => (
+              <li key={label}>
+                <Link href={href} className={linkHoverClass}>
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         {/* Услуги салона */}
-        <FooterColumn title="Услуги салона">
-          <li>Ногтевой сервис</li>
-          <li>Волосы</li>
-          <li>Брови и ресницы</li>
-          <li>Массаж</li>
-          <li>Лицо</li>
-          <li>Пирсинг</li>
-          <li>Комплексы</li>
-          <li>Депиляция</li>
-        </FooterColumn>
+        <div className="space-y-2">
+          <h4 className={titleClass}>Услуги салона</h4>
+          <ul className="space-y-1">
+            {[
+              "Ногтевой сервис",
+              "Волосы",
+              "Брови и ресницы",
+              "Массаж",
+              "Лицо",
+              "Пирсинг",
+              "Комплексы",
+              "Депиляция",
+            ].map((service) => (
+              <li key={service}>
+                <a className="transition">{service}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-                {/* Контакты */}
+        {/* Контакты */}
         <div className="space-y-3">
-          <h4 className={`text-[20px] font-semibold mb-2 ${styles.titleMain}`}>Контакты</h4>
-          <a href="tel:+79000000000" className="font-semibold hover:text-[#e4ada1] transition">
+          <h4 className={titleClass}>Контакты</h4>
+          <a
+            href="tel:+79000000000"
+            className="font-semibold hover:text-[#e4ada1] transition"
+          >
             +7 (921) 390-47-87
           </a>
-          <p className="text-sm mt-2">
+          <p className={`${textSmClass} mt-2`}>
             Чкаловский просп., 7, Санкт-Петербург<br />
             (Секция 215, этаж 2)
           </p>
-          <p className="text-sm">Часы работы: круглосуточно</p>
-          <p className="text-sm mt-2">Пионерская, 31, Санкт-Петербург</p>
-          <p className="text-sm">Часы работы: круглосуточно</p>
+          <p className={textSmClass}>Часы работы: круглосуточно</p>
+          <p className={`${textSmClass} mt-2`}>Пионерская, 31, Санкт-Петербург</p>
+          <p className={textSmClass}>Часы работы: круглосуточно</p>
         </div>
       </div>
 
@@ -84,25 +109,6 @@ export default function FooterDesktop() {
         </button>
       )}
     </footer>
-  );
-}
-
-function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-2">
-      <h4 className={`text-[20px] font-semibold mb-2 ${styles.titleMain}`}>{title}</h4>
-      <ul className="space-y-1 text-sm">{children}</ul>
-    </div>
-  );
-}
-
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <li>
-      <Link href={href} className="hover:text-[#FFC5B8] transition">
-        {children}
-      </Link>
-    </li>
   );
 }
 
