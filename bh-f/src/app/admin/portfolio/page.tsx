@@ -33,6 +33,21 @@ const PortfolioAdmin = () => {
   });
   const [filterCategory, setFilterCategory] = useState("");
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Проверка мобильного устройства
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const filteredPortfolio = filterCategory
     ? portfolio.filter((item) => item.category_id === Number(filterCategory))
@@ -50,6 +65,7 @@ const PortfolioAdmin = () => {
       setPortfolio(data);
     } catch (error) {
       console.error("Error fetching portfolio:", error);
+      setNotification({ message: "Ошибка загрузки портфолио", type: "error" });
     }
   }, []);
 
@@ -68,6 +84,7 @@ const PortfolioAdmin = () => {
       setCategories(data);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      setNotification({ message: "Ошибка загрузки категорий", type: "error" });
     }
   }, []);
 
@@ -77,6 +94,7 @@ const PortfolioAdmin = () => {
         await Promise.all([fetchPortfolio(), fetchCategories()]);
       } catch (error) {
         console.error("Error loading data:", error);
+        setNotification({ message: "Ошибка загрузки данных", type: "error" });
       } finally {
         setLoading((prev) => ({ ...prev, initial: false }));
       }
@@ -85,9 +103,19 @@ const PortfolioAdmin = () => {
     loadData();
   }, [fetchPortfolio, fetchCategories]);
 
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.images.length === 0 || !form.category_id) return;
+    if (form.images.length === 0 || !form.category_id) {
+      setNotification({ message: "Выберите изображения и категорию", type: "error" });
+      return;
+    }
 
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -117,9 +145,15 @@ const PortfolioAdmin = () => {
       await Promise.all(uploadPromises);
       await fetchPortfolio();
       setForm({ title: "", category_id: "", images: [] });
-      alert(`Успешно добавлено ${form.images.length} изображений`);
+      setNotification({ 
+        message: `Успешно добавлено ${form.images.length} изображений`, 
+        type: "success" 
+      });
     } catch (err: any) {
-      alert(err.message || "Ошибка при добавлении изображений");
+      setNotification({ 
+        message: err.message || "Ошибка при добавлении изображений", 
+        type: "error" 
+      });
     } finally {
       setLoading((prev) => ({ ...prev, uploading: false }));
     }
@@ -140,8 +174,9 @@ const PortfolioAdmin = () => {
         });
 
         await fetchPortfolio();
+        setNotification({ message: "Элемент успешно удален", type: "success" });
       } catch (err: any) {
-        alert(err.message || "Ошибка при удалении");
+        setNotification({ message: err.message || "Ошибка при удалении", type: "error" });
       } finally {
         setLoading((prev) => ({ ...prev, deleting: false }));
       }
@@ -170,9 +205,15 @@ const PortfolioAdmin = () => {
 
       await fetchPortfolio();
       setSelectedItems([]);
-      alert(`Успешно удалено ${selectedItems.length} элементов`);
+      setNotification({ 
+        message: `Успешно удалено ${selectedItems.length} элементов`, 
+        type: "success" 
+      });
     } catch (err: any) {
-      alert(err.message || "Ошибка при массовом удалении");
+      setNotification({ 
+        message: err.message || "Ошибка при массовом удалении", 
+        type: "error" 
+      });
     } finally {
       setLoading((prev) => ({ ...prev, deleting: false }));
     }
@@ -194,7 +235,6 @@ const PortfolioAdmin = () => {
   };
 
   const clearForm = () => {
-    // Очищаем все выбранные файлы и их превью
     setForm((prev) => ({
       ...prev,
       images: [],
@@ -202,7 +242,6 @@ const PortfolioAdmin = () => {
       category_id: ""
     }));
     
-    // Сбрасываем значение input file
     const fileInput = document.getElementById("file-upload") as HTMLInputElement;
     if (fileInput) {
       fileInput.value = "";
@@ -226,7 +265,22 @@ const PortfolioAdmin = () => {
   return (
     <>
       <AdminNavbar />
-      <main className="p-6 max-w-4xl mx-auto text-[#4b4845]">
+      
+      {/* Уведомление */}
+      {notification && (
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg animate-notification text-sm md:text-base ${
+          notification.type === 'success' 
+            ? 'bg-green-100 text-green-800 border border-green-200' 
+            : 'bg-red-100 text-red-800 border border-red-200'
+        }`} style={{ 
+          maxWidth: isMobile ? 'calc(100% - 2rem)' : 'auto',
+          width: isMobile ? 'auto' : 'max-content'
+        }}>
+          {notification.message}
+        </div>
+      )}
+
+      <main className="p-6 max-w-4xl mx-auto md:ml-64  text-[#4b4845]">
         <h1 className="text-2xl font-semibold mb-6">Портфолио</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4 mb-8 bg-gray-50 p-4 rounded">
