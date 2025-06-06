@@ -8,7 +8,6 @@ export default function withAuth<P extends object>(WrappedComponent: ComponentTy
     const router = useRouter();
 
     useEffect(() => {
-      // Проверка на клиентской стороне
       if (typeof window === 'undefined') return;
 
       const verifyAuth = async () => {

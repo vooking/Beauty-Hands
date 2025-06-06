@@ -15,7 +15,6 @@ import Kart from "./components/Kart";
 import ServiceCard from "./components/ServiceCard";
 import FeatureCard from "./components/FeatureCard";
 
-// Мемоизированные компоненты
 const MemoizedHeader = memo(Header);
 const MemoizedYclientsButton = memo(YclientsButton);
 const MemoizedGiftCertificates = memo(GiftCertificates);
@@ -78,10 +77,8 @@ export default function Home() {
           />
         </div>
 
-        {/* Шапка */}
         <MemoizedHeader isTransparent />
 
-        {/* Контент */}
         <div className="max-w-xl text-black z-10 mt-[-100px] sm:mt-[-120px] md:mt-[-150px] animate-fadeIn">
           <h2
             className={`text-left text-[#1e1e1e] font-bold leading-[0.9] mb-4 text-[42px] sm:text-[64px] md:text-[96px] tracking-tight ${styles.titleMain}`}
@@ -104,11 +101,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Цветная полоса */}
       <div className="w-full h-[40px] bg-[#fff3f1]"></div>
 
-      {/* Секция О НАС */}
-      {/* Десктопная версия */}
       <div className="relative w-full h-screen overflow-hidden hidden md:block">
         <div className="w-full h-full bg-[#fbf7f6]"></div>
         <h1
@@ -159,12 +153,10 @@ export default function Home() {
         <div className="absolute bg-[#ffc5b8] h-[2px] w-[144.39px] left-[564px] top-[188.32px]"></div>
       </div>
 
-      {/* Мобильная версия */}
       <MemoizedAboutUs />
 
       <div className="w-full h-[100px] bg-[#fbf7f6]"></div>
 
-      {/* Секция МЫ - ЭТО */}
       <section className="py-20 bg-[#fff] text-[#4b4845]">
         <div className="flex items-center justify-center mb-14">
           <div className="w-[80px] h-[2px] bg-[#FFC5B8] mr-6"></div>
@@ -176,7 +168,6 @@ export default function Home() {
           <div className="w-[80px] h-[2px] bg-[#FFC5B8] ml-6"></div>
         </div>
 
-        {/* Карточки */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-4 text-center">
           {features.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
@@ -184,9 +175,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Секция НАШИ УСЛУГИ */}
       <section id="services" className="py-30 bg-[#fffaf9] text-[#4b4845]">
-        {/* Заголовок */}
         <div className="flex items-center justify-center mb-6">
           <div className="w-[80px] h-[2px] bg-[#FFC5B8] mr-6"></div>
           <h2
@@ -200,14 +189,12 @@ export default function Home() {
           Индивидуальный подход к каждому клиенту
         </p>
 
-        {/* Сетка карточек */}
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-6 px-4">
           {services.map((service) => (
             <ServiceCard key={service.text} {...service} />
           ))}
         </div>
 
-        {/* Кнопка */}
         <div className="flex justify-center mt-12">
           <Link
             href="/price"
@@ -218,13 +205,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Секция KART */}
-      {/* Десктопная версия */}
       <section className="bg-white py-30 px-4 text-[#4b4845] md:block hidden">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-start">
-          {/* Левая часть */}
           <div>
-            {/* Заголовки */}
             <div className="flex items-center mb-2">
               <div className="w-[2px] h-5 bg-[#FFC5B8] mr-4"></div>
               <p
@@ -235,7 +218,6 @@ export default function Home() {
             </div>
             <h2 className={`text-3xl mb-10 ${styles.titleMain}`}>KART</h2>
 
-            {/* Описание */}
             <p className="mb-6 text-base leading-relaxed">
               Израильская компания <strong>KART</strong> разрабатывает
               косметические препараты для педикюра, сочетая натуральные
@@ -243,7 +225,6 @@ export default function Home() {
               качественных результатов.
             </p>
 
-            {/* Фото под текстом */}
             <Image
               src="/kart-foot.svg"
               alt="Пример педикюра с продукцией KART"
@@ -253,9 +234,7 @@ export default function Home() {
             />
           </div>
 
-          {/* Правая часть */}
           <div className="flex flex-col justify-start mt-27">
-            {/* Фото продуктов */}
             <Image
               src="/kart-products.svg"
               alt="Продукция KART для педикюра"
@@ -264,7 +243,6 @@ export default function Home() {
               className="rounded-lg shadow-md object-cover w-full mb-6"
             />
 
-            {/* Список достоинств */}
             <ul className="space-y-4 text-base">
               <li>
                 <span className="font-semibold text-[#FFC5B8]">
@@ -298,21 +276,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Мобильная версия */}
       <MemoizedKart />
 
-      {/* Цветная полоса */}
       <div className="w-full h-[40px] bg-[#fff3f1]"></div>
 
-      {/* Секция с брендами */}
       <MemoizedBrandsCarousel />
 
-      {/* Секция с сертификатами */}
       <section className="bg-[#FBF7F6]">
         <MemoizedGiftCertificates />
       </section>
 
-      {/* Секция с портфолио */}
       <section className="bg-white py-20 px-4 text-center text-[#4b4845]">
         <MemoizedPortfolioGallery />
       </section>

@@ -29,7 +29,6 @@ const giftItems = [
     return (
       <section className="py-20 px-4 text-center">
         <div className="max-w-5xl mx-auto">
-          {/* Заголовок */}
           <div className="flex items-center justify-center mb-8">
             <span className="h-px bg-[#FFC5B8] flex-1 max-w-[60px] sm:max-w-[100px]"></span>
             <h2
@@ -40,7 +39,6 @@ const giftItems = [
             <span className="h-px bg-[#FFC5B8] flex-1 max-w-[60px] sm:max-w-[100px]"></span>
           </div>
   
-          {/* Подзаголовок */}
           <p className="text-gray-600 text-sm sm:text-base max-w-1xl mx-auto mb-12 px-2 sm:px-0">
             Подарите вашим близким возможность почувствовать себя особенными! Наши
             подарочные сертификаты — идеальный способ порадовать родных и друзей
@@ -51,7 +49,6 @@ const giftItems = [
             профессионального сервиса.
           </p>
   
-          {/* Карточки */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {giftItems.map((gift, idx) => (
               <div key={idx} className="flex flex-col items-center">

@@ -5,7 +5,6 @@ export default function YclientsButton() {
   const [widgetReady, setWidgetReady] = useState(false);
 
   useEffect(() => {
-    // Проверяем, не добавлен ли уже скрипт
     if (document.querySelector('script[src="https://w298112.yclients.com/widgetJS"]')) {
       setWidgetReady(true);
       return;
@@ -27,7 +26,6 @@ export default function YclientsButton() {
     document.body.appendChild(script);
 
     return () => {
-      // Очистка при размонтировании
       script.removeEventListener("load", handleLoad);
       if (script.parentNode) {
         document.body.removeChild(script);

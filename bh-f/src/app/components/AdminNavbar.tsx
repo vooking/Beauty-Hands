@@ -38,7 +38,6 @@ const AdminNavbar = () => {
 
   return (
     <>
-      {/* Mobile toggle button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded shadow-md"
@@ -46,7 +45,6 @@ const AdminNavbar = () => {
         <Menu className="h-6 w-6 text-gray-700" />
       </button>
 
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 shadow-md p-6 transition-transform z-40 flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
@@ -77,7 +75,6 @@ const AdminNavbar = () => {
           </ul>
         </div>
 
-        {/* Кнопка выхода прижата вниз */}
         <button
           onClick={handleLogout}
           className="mt-6 flex items-center gap-2 text-red-600 hover:text-red-800 transition"

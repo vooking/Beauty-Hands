@@ -32,11 +32,9 @@ const ServicesTable: React.FC = () => {
   const [errorServices, setErrorServices] = useState<string | null>(null);
 
   useEffect(() => {
-    // Убираем полосу прокрутки при загрузке компонента
     document.documentElement.style.overflowX = "hidden";
     document.body.style.overflowX = "hidden";
     
-    // Восстанавливаем при размонтировании
     return () => {
       document.documentElement.style.overflowX = "";
       document.body.style.overflowX = "";
@@ -110,7 +108,6 @@ const ServicesTable: React.FC = () => {
     [filteredServices]
   );
 
-  // Анимация для скелетона загрузки
   const SkeletonLoader = () => (
     <motion.div
       initial={{ opacity: 0.5 }}
@@ -126,7 +123,6 @@ const ServicesTable: React.FC = () => {
         Наши услуги
       </h2>
 
-      {/* Категории */}
       <div className="flex flex-wrap gap-4 mb-6 justify-center">
         {loadingCategories ? (
           <div className="flex gap-4">
@@ -161,7 +157,6 @@ const ServicesTable: React.FC = () => {
         )}
       </div>
 
-      {/* Таблица для десктопа */}
       <div className="hidden md:block">
         {loadingServices ? (
           <motion.div 
@@ -233,7 +228,6 @@ const ServicesTable: React.FC = () => {
         )}
       </div>
 
-      {/* Мобильная версия */}
       <div className="md:hidden space-y-4">
         {loadingServices ? (
           <motion.div 

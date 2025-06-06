@@ -39,7 +39,6 @@ const PortfolioAdmin = () => {
   } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Проверка мобильного устройства
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -266,7 +265,6 @@ const PortfolioAdmin = () => {
     <>
       <AdminNavbar />
       
-      {/* Уведомление */}
       {notification && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg animate-notification text-sm md:text-base ${
           notification.type === 'success' 

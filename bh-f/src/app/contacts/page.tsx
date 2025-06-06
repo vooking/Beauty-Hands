@@ -86,7 +86,6 @@ export default function Contacts() {
           </div>
 
           <div className="flex flex-col md:flex-row gap-6 h-auto md:h-[600px] mb-12 md:mb-20 bg-[#f8f8f8] rounded-2xl shadow-sm">
-            {/* Информационный блок */}
             <div className="w-full md:w-1/2 p-6 md:p-8">
               <div className="space-y-4 md:space-y-6">
                 <h3 className="text-xl md:text-2xl font-bold">— {contacts[activeTab].title}</h3>
@@ -148,7 +147,6 @@ export default function Contacts() {
               </div>
             </div>
             
-            {/* Карта */}
             <div className="w-full md:w-1/2 h-64 md:h-full">
               <iframe
                 src={contacts[activeTab].mapSrc}
@@ -161,7 +159,6 @@ export default function Contacts() {
             </div>
           </div>
 
-          {/* Форма обратной связи */}
           <div className="text-center mt-12 md:mt-32">
             <p className={`text-lg md:text-[22px] font-semibold ${styles.titleMain}`}>
               Остались вопросы?

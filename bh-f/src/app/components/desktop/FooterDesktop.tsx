@@ -21,7 +21,6 @@ export default function FooterDesktop() {
   return (
     <footer className="hidden md:block bg-[#FBF7F6] text-[#4b4845] text-sm py-14 px-20">
       <div className="grid grid-cols-4 gap-10 max-w-screen-xl mx-auto">
-        {/* Логотип и информация */}
         <div className="space-y-4">
           <h3 className={`text-lg md:text-xl font-light ${styles.logo}`}>BEAUTY HANDS</h3>
           <p className="text-xs mt-[-10px]">Студия красоты</p>
@@ -37,7 +36,6 @@ export default function FooterDesktop() {
           </div>
         </div>
 
-        {/* Главная */}
         <div className="space-y-2">
           <h4 className={titleClass}>Меню</h4>
           <ul className="space-y-1">
@@ -58,7 +56,6 @@ export default function FooterDesktop() {
           </ul>
         </div>
 
-        {/* Услуги салона */}
         <div className="space-y-2">
           <h4 className={titleClass}>Услуги салона</h4>
           <ul className="space-y-1">
@@ -79,7 +76,6 @@ export default function FooterDesktop() {
           </ul>
         </div>
 
-        {/* Контакты */}
         <div className="space-y-3">
           <h4 className={titleClass}>Контакты</h4>
           <a
@@ -98,7 +94,6 @@ export default function FooterDesktop() {
         </div>
       </div>
 
-      {/* Кнопка Наверх */}
       {showScrollTop && (
         <button
           onClick={scrollToTop}

@@ -46,6 +46,7 @@ const CategoryButton = ({
 const PortfolioImageItem = ({
   image,
   onClick,
+  priority = false,
 }: {
   image: PortfolioImage;
   onClick: () => void;
@@ -68,8 +69,9 @@ const PortfolioImageItem = ({
         src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${image.image_url}`}
         alt={image.title || `portfolio ${image.id}`}
         fill
-        quality={50}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        quality={80} 
+        priority={priority}
+        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
         className={`object-cover transition-opacity duration-300 ${
           loaded ? "opacity-100" : "opacity-0"
         }`}
@@ -232,7 +234,7 @@ export default function PortfolioGallery() {
               key={image.id}
               image={image}
               onClick={() => openImageModal(image)}
-              priority={idx === 0}
+              priority={idx < 4}
             />
           ))
         ) : (
@@ -289,8 +291,10 @@ export default function PortfolioGallery() {
                 src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${selectedImage.image_url}`}
                 alt={selectedImage.title || ""}
                 fill
-                quality={100} 
+                quality={100}
+                priority
                 className="object-contain"
+                unoptimized={false} 
               />
             </div>
           </div>

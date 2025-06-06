@@ -38,7 +38,6 @@ export default function Kart() {
   return (
     <section className="bg-white py-20 px-4 text-[#4b4845] md:hidden">
       <div className="max-w-6xl mx-auto grid grid-cols-1 gap-8 items-start">
-        {/* Заголовок и описание */}
         <div>
           <div className="flex items-center mb-2">
             <div className="w-[2px] h-10 bg-[#FFC5B8] mr-4" />
@@ -53,7 +52,6 @@ export default function Kart() {
           </p>
         </div>
 
-        {/* Изображение под описанием */}
         <div>
           <img
             src="/kart-foot.svg"
@@ -62,7 +60,6 @@ export default function Kart() {
           />
         </div>
 
-        {/* Список достоинств и изображение */}
         <div className="flex flex-col justify-start">
           <FeatureList />
           <img

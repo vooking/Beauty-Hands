@@ -16,15 +16,3 @@ class IsAdmin
         return $next($request);
     }
 }
-
-// php artisan tinker
-
-// $user = new \App\Models\User;
-// $user->name = 'Admin';
-// $user->email = 'admin@example.com';
-// $user->password = bcrypt('admin123');
-// $user->is_admin = true;
-// $user->save();
-
-// логин: admin@example.com
-// пароль: admin123

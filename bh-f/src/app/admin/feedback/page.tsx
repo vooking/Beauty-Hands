@@ -89,7 +89,6 @@ const Feedback = () => {
   } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Проверка мобильного устройства
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
@@ -99,7 +98,6 @@ const Feedback = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Автоматическое скрытие уведомления
   useEffect(() => {
     if (notification) {
       const timer = setTimeout(() => setNotification(null), 3000);
@@ -215,7 +213,6 @@ const Feedback = () => {
     <>
       <AdminNavbar />
       
-      {/* Уведомление */}
       {notification && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg animate-notification text-sm ${
           notification.type === 'success' 
@@ -232,7 +229,6 @@ const Feedback = () => {
       <main className="text-[#4b4845] p-4 sm:p-6 md:ml-64 max-w-screen-xl mx-auto">
         <h1 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Обратная связь</h1>
 
-        {/* Кнопка массового удаления */}
         {feedback.length > 0 && (
           <div className="mb-3 sm:mb-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-2">

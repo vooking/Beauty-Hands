@@ -35,7 +35,7 @@ export default function BrandsCarousel() {
                 width={100}
                 height={60}
                 className="object-contain h-[80px] sm:h-[100px] w-auto"
-                priority={idx < 3} // первые 3 логотипа загрузить с приоритетом
+                priority={idx < 3} 
               />
             </div>
           ))}

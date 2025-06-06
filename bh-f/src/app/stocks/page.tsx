@@ -65,7 +65,6 @@ export default function Stocks() {
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
 
-  // Можно сбрасывать раскрытый индекс при смене isMobile
   useEffect(() => {
     setOpenIndex(null);
   }, [isMobile]);

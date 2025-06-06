@@ -36,7 +36,6 @@ const ServicesAdmin = () => {
   } | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Проверка мобильного устройства
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -46,7 +45,6 @@ const ServicesAdmin = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Загрузка данных
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -89,7 +87,6 @@ const ServicesAdmin = () => {
     fetchData();
   }, []);
 
-  // Фильтрация услуг по категории
   useEffect(() => {
     if (selectedCategory === 'Все') {
       setFilteredServices(services);
@@ -284,7 +281,6 @@ const ServicesAdmin = () => {
         });
       }
 
-      // Обновление списка услуг
       const updatedServices = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/services`,
         {
@@ -412,7 +408,6 @@ const ServicesAdmin = () => {
     <>
       <AdminNavbar />
       
-      {/* Уведомление */}
       {notification && (
         <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg animate-notification text-sm md:text-base ${
           notification.type === 'success' 
@@ -429,7 +424,6 @@ const ServicesAdmin = () => {
       <main className="text-[#4b4845] p-6 md:ml-64 max-w-4xl mx-auto ">
         <h1 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Управление услугами</h1>
 
-        {/* Форма добавления/редактирования */}
         <form
           onSubmit={handleSubmit}
           className="space-y-3 md:space-y-4 mb-6 md:mb-8 bg-gray-50 p-3 md:p-4 rounded"
@@ -565,7 +559,6 @@ const ServicesAdmin = () => {
           </div>
         </form>
 
-        {/* Фильтр и кнопка массового удаления */}
         <div className="mb-4 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
           <div className="w-full md:w-auto">
             <label className="block mb-1 text-sm md:text-base font-medium">Фильтр по категории</label>
@@ -592,7 +585,6 @@ const ServicesAdmin = () => {
           )}
         </div>
 
-        {/* Список услуг - мобильная и десктопная версии */}
         {isMobile ? (
           <div className="space-y-3">
             {isLoading && !filteredServices.length ? (
