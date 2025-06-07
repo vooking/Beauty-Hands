@@ -1,0 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Julius+Sans+One&display=swap');
+
+.logo {
+  font-family: 'Julius Sans One', sans-serif;
+}
+
+.titleMain {
+  font-family: 'Cormorant Garamond', serif;
+}
+
